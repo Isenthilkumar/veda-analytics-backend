@@ -14,8 +14,10 @@ const port = 3000;
 const genAI = new GoogleGenerativeAI(API_KEY);
 const upload = multer({ dest: 'uploads/' });
 
-// Enable CORS for all requests
-app.use(cors());
+// Enable CORS for all requests. This is the fix.
+app.use(cors({
+  origin: '*', // Allow all origins to access the server
+}));
 app.use(express.json());
 
 // Helper function to convert file to a base64-encoded object
