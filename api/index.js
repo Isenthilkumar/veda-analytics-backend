@@ -16,7 +16,7 @@ const genAI = new GoogleGenerativeAI(API_KEY);
 // Vercel serverless functions can only write to /tmp.
 const upload = multer({ dest: '/tmp/' });
 
-// Enable CORS for all requests. (Addresses the CORS error).
+// Enable CORS for all requests.
 app.use(cors({
   origin: '*', // Allow all origins to access the server
 }));
@@ -46,8 +46,7 @@ app.post('/analyze', upload.single('report'), async (req, res) => {
 
     const { originalname, mimetype, path: tempPath } = req.file;
 
-    // Use a multi-modal model (Gemini 1.5 Pro) for image/PDF analysis
-    //const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro-latest" });
+    // FIX: Changed model to the stable and supported 'gemini-2.5-pro'
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" });
 
     // UPDATED PROMPT: Extract ALL key metrics
@@ -78,9 +77,12 @@ app.post('/analyze', upload.single('report'), async (req, res) => {
     // Clean up the temporary file immediately after use.
     fs.unlinkSync(tempPath);
 
+    // FIX: Must CALL response.text() to get the string content.
+    const responseText = response.text(); 
+    
     // Attempt to extract text between ```json and ``` for robust parsing
-    const jsonMatch = response.text.match(/```json\s*([\s\S]*?)\s*```/);
-    const jsonText = jsonMatch ? jsonMatch[1].trim() : response.text.trim();
+    const jsonMatch = responseText.match(/```json\s*([\s\S]*?)\s*```/);
+    const jsonText = jsonMatch ? jsonMatch[1].trim() : responseText.trim();
 
     // Attempt to parse the JSON output from Gemini
     let parsedData;
