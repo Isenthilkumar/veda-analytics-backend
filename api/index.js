@@ -60,56 +60,75 @@ app.post('/analyze', upload.single('report'), async (req, res) => {
   try {
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" });
 
-    // Updated and more specific prompt with additional fields
+    // Corrected prompt to ensure valid JSON output from the model
     const prompt = `
       Analyze the attached blood report. Extract the patient's name, age, and gender.
       Then, extract the values for all available tests. If a value is a string (e.g., 'Positive', 'Negative'), keep it as a string. If it's a number, convert it to a float. If a value is not found, use null.
       
-      Extract the following fields:
-      - Patient's Name (key: "name")
-      - Age/Sex (key: "age_sex")
-      - Typhidot IgG (key: "typhidot_igg")
-      - Typhidot IgM (key: "typhidot_igm")
-      - Bilirubin Total (key: "bilirubin_total")
-      - SGPT (ALT) (key: "sgpt_alt")
-      - SGOT (AST) (key: "sgot_ast")
-      - HBsAg (key: "hbsag")
-      - Anti HCV (key: "anti_hcv")
-      - Haemoglobin (key: "haemoglobin")
-      - WBC (TLC) (key: "wbc_tlc")
-      - Total RBC (key: "total_rbc")
-      - HCT (PVC) (key: "hct_pvc")
-      - MCV (key: "mcv")
-      - MCH (key: "mch")
-      - MCHC (key: "mchc")
-      - Platelets (key: "platelets")
-      - HbA1c (key: "hba1c")
-      - Estimated Average Glucose (key: "estimated_average_glucose")
-      - Fasting Glucose (key: "fasting_glucose")
-      - Total Cholesterol (key: "total_cholesterol")
-      - HDL Cholesterol (key: "hdl_cholesterol")
-      - LDL Cholesterol (key: "ldl_cholesterol")
-      - Triglycerides (key: "triglycerides")
-      - Creatinine (key: "creatinine")
-      - BUN (key: "bun")
-      - TSH (key: "tsh")
-      - Free T3 (key: "free_t3")
-      - Free T4 (key: "free_t4")
-      - Vitamin D (key: "vitamin_d")
-      - Vitamin B12 (key: "vitamin_b12")
-      - Iron (key: "iron")
-      - Ferritin (key: "ferritin")
-      - CRP (key: "crp")
-      - ESR (key: "esr")
+      Return a single JSON object with the following fields:
+      - "name"
+      - "age_sex"
+      - "typhidot_igg"
+      - "typhidot_igm"
+      - "bilirubin_total"
+      - "sgpt_alt"
+      - "sgot_ast"
+      - "hbsag"
+      - "anti_hcv"
+      - "haemoglobin"
+      - "wbc_tlc"
+      - "total_rbc"
+      - "hct_pvc"
+      - "mcv"
+      - "mch"
+      - "mchc"
+      - "platelets"
+      - "hba1c"
+      - "estimated_average_glucose"
+      - "fasting_glucose"
+      - "total_cholesterol"
+      - "hdl_cholesterol"
+      - "ldl_cholesterol"
+      - "triglycerides"
+      - "creatinine"
+      - "bun"
+      - "tsh"
+      - "free_t3"
+      - "free_t4"
+      - "vitamin_d"
+      - "vitamin_b12"
+      - "iron"
+      - "ferritin"
+      - "crp"
+      - "esr"
+      - "procalcitonin"
+      - "ana_titer"
+      - "rheumatoid_factor"
+      - "testosterone"
+      - "cortisol"
+      - "pt_inr"
+      - "ptt"
+      - "d_dimer"
+      - "malaria_rapid_test"
+      - "typhoid_test"
+      - "widal_test"
+      - "dengue_ns1"
+      - "dengue_igm"
+      - "chikungunya_igm"
+      - "tuberculosis"
+      - "neutrophils"
+      - "lymphocytes"
+      - "monocytes"
+      - "eosinophils"
 
-      Return the data as a single JSON object. Do not include any other text or formatting outside of the JSON block.
+      Do not include any other text or formatting outside of the JSON block.
     `;
 
     const imagePart = fileToGenerativePart(tempPath, mimetype);
     const result = await model.generateContent({
         contents: [{ parts: [{ text: prompt }, imagePart] }],
         generationConfig: {
-            responseMimeType: "application/json",
+             responseMimeType: "application/json"
         },
     });
 
@@ -117,13 +136,16 @@ app.post('/analyze', upload.single('report'), async (req, res) => {
     
     // Clean up the temporary file
     fs.unlinkSync(tempPath);
-
+    
+    // The model is now instructed to output valid JSON directly, so we can parse it.
     const parsedData = JSON.parse(responseText);
     res.json(parsedData);
 
   } catch (error) {
     console.error('API Error:', error);
-    fs.unlinkSync(tempPath); // Ensure file is deleted even on error
+    if (tempPath && fs.existsSync(tempPath)) {
+        fs.unlinkSync(tempPath); // Ensure file is deleted even on error
+    }
     res.status(500).json({ 
         error: 'Failed to process the request due to a server error.', 
         details: error.message 
