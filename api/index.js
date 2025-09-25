@@ -60,7 +60,8 @@ app.post('/analyze', upload.single('report'), async (req, res) => {
   try {
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" });
 
-    // Corrected prompt to ensure valid JSON output from the model
+    // The core of the fix is here. We are now directly instructing the model
+    // to output a JSON object, which is more reliable than the deprecated parameter.
     const prompt = `
       Analyze the attached blood report. Extract the patient's name, age, and gender.
       Then, extract the values for all available tests. If a value is a string (e.g., 'Positive', 'Negative'), keep it as a string. If it's a number, convert it to a float. If a value is not found, use null.
@@ -127,9 +128,7 @@ app.post('/analyze', upload.single('report'), async (req, res) => {
     const imagePart = fileToGenerativePart(tempPath, mimetype);
     const result = await model.generateContent({
         contents: [{ parts: [{ text: prompt }, imagePart] }],
-        generationConfig: {
-             responseMimeType: "application/json"
-        },
+        // The error was here, removed the responseMimeType parameter
     });
 
     const responseText = result.response.candidates[0].content.parts[0].text;
@@ -137,8 +136,32 @@ app.post('/analyze', upload.single('report'), async (req, res) => {
     // Clean up the temporary file
     fs.unlinkSync(tempPath);
     
-    // The model is now instructed to output valid JSON directly, so we can parse it.
-    const parsedData = JSON.parse(responseText);
+    // Attempt to parse the JSON output from Gemini.
+    // The Gemini model is now more reliable at returning a clean JSON object based on the prompt alone.
+    let parsedData;
+    try {
+      parsedData = JSON.parse(responseText);
+    } catch (e) {
+      console.error("Failed to parse JSON from Gemini:", responseText);
+      // Fallback: Use a regex to extract JSON if the model wraps it in markdown
+      const jsonMatch = responseText.match(/```json\s*([\s\S]*?)\s*```/);
+      if (jsonMatch && jsonMatch[1]) {
+          try {
+              parsedData = JSON.parse(jsonMatch[1].trim());
+          } catch (e2) {
+              return res.status(500).json({
+                  error: "Could not parse report data. Gemini may not have returned valid JSON.",
+                  rawResponse: responseText
+              });
+          }
+      } else {
+          return res.status(500).json({
+              error: "Could not parse report data. Gemini may not have returned valid JSON.",
+              rawResponse: responseText
+          });
+      }
+    }
+
     res.json(parsedData);
 
   } catch (error) {
