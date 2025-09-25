@@ -47,7 +47,8 @@ app.post('/analyze', upload.single('report'), async (req, res) => {
     const { originalname, mimetype, path: tempPath } = req.file;
 
     // Use a multi-modal model (Gemini 1.5 Pro) for image/PDF analysis
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro-latest" });
+    //const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro-latest" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" });
 
     // UPDATED PROMPT: Extract ALL key metrics
     const prompt = `
