@@ -13,7 +13,7 @@
     },
     {
       "src": "/",          
-      "dest": "/debug.html"
+      "dest": "/index.html"
     }
   ]
 }

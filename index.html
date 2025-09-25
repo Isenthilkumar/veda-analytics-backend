@@ -1,0 +1,1803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VEDA ANALYTICS - Wellness Through Wisdom</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #4DB6AC 0%, #66BB6A 50%, #4CAF50 100%);
+            min-height: 100vh;
+            color: #333;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Subtle background pattern for a premium look */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .page {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            max-width: 450px;
+            margin: auto;
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+        }
+
+        .page.active {
+            display: flex;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-top: 40px;
+            width: 100%;
+        }
+        
+        .logo {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .medical-symbol {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.5rem;
+            color: #4CAF50;
+            text-shadow: 0 1px 5px rgba(0,0,0,0.5);
+        }
+        
+        .app-name {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #ffffff;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+        
+        .tagline {
+            font-size: 1.1rem;
+            color: #ffffff;
+            opacity: 0.9;
+            font-style: italic;
+            font-weight: 300;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #4DB6AC, #66BB6A, #4CAF50);
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .card-icon {
+            font-size: 2.5rem;
+            margin-right: 15px;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #4DB6AC, #66BB6A);
+            color: white;
+            box-shadow: 0 5px 15px rgba(77, 182, 172, 0.4);
+        }
+        
+        .card-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #2E7D75;
+            margin-bottom: 5px;
+        }
+        
+        .card-subtitle {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.4;
+        }
+        
+        .card-content {
+            margin: 20px 0;
+        }
+
+        .button-group {
+            margin-top: 20px;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 15px 20px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn i {
+            margin-right: 8px;
+            font-size: 1.1rem;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #4DB6AC, #66BB6A);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        
+        .btn-disabled {
+            background: #cccccc;
+            color: #999999;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        
+        .btn-disabled:hover {
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .btn-coming-soon {
+            background: linear-gradient(135deg, #FF9800, #FF5722);
+            color: white;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        
+        .upload-status {
+            display: none;
+            text-align: center;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .upload-success {
+            background: #E8F5E8;
+            color: #2E7D32;
+            border: 1px solid #4CAF50;
+        }
+        
+        .upload-error {
+            background: #FFEBEE;
+            color: #C62828;
+            border: 1px solid #F44336;
+        }
+        
+        .file-input {
+            display: none;
+        }
+
+        /* Analysis Page Styles */
+        .disclaimer {
+            background: #fff8e1;
+            color: #ffa000;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 0.9em;
+            text-align: center;
+            margin-bottom: 20px;
+            border: 1px solid #ffcc80;
+        }
+
+        .tabs-container {
+            background: #f0f0f0;
+            border-radius: 12px;
+            padding: 5px;
+            display: flex;
+            width: 100%;
+            margin-bottom: 20px;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            background: none;
+            color: #666;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #4DB6AC, #66BB6A);
+            color: white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            transform: translateY(-2px);
+            z-index: 2;
+        }
+
+        .tab-btn i {
+            margin-right: 8px;
+        }
+
+        .analysis-content {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .analysis-section-title {
+            display: flex;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2E7D75;
+            margin-bottom: 20px;
+        }
+
+        .analysis-section-title i {
+            margin-right: 10px;
+        }
+
+        .parameter-card {
+            background: #f8f8f8;
+            border-left: 5px solid;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .parameter-title {
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+            font-size: 1.1em;
+            margin-bottom: 5px;
+            color: #444;
+        }
+
+        .parameter-title i {
+            margin-right: 8px;
+            font-size: 1.2em;
+        }
+
+        .status-badge {
+            font-size: 0.8em;
+            font-weight: 700;
+            padding: 4px 8px;
+            border-radius: 10px;
+            color: white;
+            position: absolute;
+            top: 15px;
+            right: 15px;
+        }
+
+        .status-red { background: #f44336; }
+        .status-orange { background: #ff9800; }
+        .status-green { background: #4caf50; }
+
+        .analysis-detail {
+            font-size: 0.9em;
+            color: #555;
+            margin-bottom: 5px;
+            line-height: 1.5;
+        }
+        
+        .ayurvedic-list {
+            list-style-type: none;
+            padding-left: 0;
+            margin-left: 0;
+        }
+
+        .ayurvedic-list li {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: flex-start;
+            line-height: 1.5;
+        }
+        
+        .ayurvedic-list i {
+            margin-right: 10px;
+            margin-top: 4px;
+            color: #2E7D75;
+            font-size: 1.2em;
+        }
+        
+        .placeholder-text {
+            color: #999;
+            font-style: italic;
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .loader {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            margin-top: 50px;
+        }
+
+        .loader i {
+            font-size: 3em;
+            color: #4DB6AC;
+            animation: spin 2s linear infinite;
+        }
+        
+        .loader p {
+            margin-top: 10px;
+            font-size: 1em;
+            color: #666;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: #fefefe;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            width: 80%;
+            max-width: 400px;
+        }
+        
+        .modal-content h3 { margin-bottom: 10px; font-size: 1.2rem; color: #333; }
+        .modal-content p { margin-bottom: 20px; color: #666; }
+        .modal-content button {
+            background-color: #4DB6AC;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .modal-content button:hover { background-color: #38a193; }
+
+        .analysis-section-title.main {
+            display: flex;
+            align-items: center;
+        }
+
+        .btn-back {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #2E7D75;
+            cursor: pointer;
+            margin-right: 10px;
+            padding: 0;
+            transition: color 0.2s ease;
+        }
+
+        .btn-back:hover {
+            color: #4DB6AC;
+        }
+
+        /* NEW STYLES FOR PATIENT INFO ON ANALYSIS PAGE */
+        .patient-info-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.3);
+            width: 100%;
+            text-align: left;
+        }
+        .patient-info-card h4 {
+            font-weight: 600;
+            font-size: 1.2rem;
+            color: #2E7D75;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #4DB6AC;
+            padding-bottom: 5px;
+        }
+        .patient-info-card p {
+            font-size: 1em;
+            color: #555;
+            margin-bottom: 5px;
+        }
+
+
+        @media (max-width: 480px) {
+            .page { padding: 10px; }
+            .card { padding: 25px 20px; }
+            .app-name { font-size: 2rem; }
+            .card-icon { font-size: 2rem; width: 50px; height: 50px; }
+            .card-title { font-size: 1.2rem; }
+            .disclaimer { font-size: 0.8em; }
+        }
+    </style>
+</head>
+<body>
+    <div id="messageModal" class="modal">
+        <div class="modal-content">
+            <h3 id="modalTitle"></h3>
+            <p id="modalMessage"></p>
+            <button id="modalClose">OK</button>
+        </div>
+    </div>
+    
+    <div id="homePage" class="page active">
+        <div class="header">
+            <div class="logo">
+                <span class="lotus-icon">??</span>
+                <span class="medical-symbol">??</span>
+            </div>
+            <h1 class="app-name">VEDA ANALYTICS</h1>
+            <p class="tagline">Wellness Through Wisdom</p>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-tint"></i>
+                </div>
+                <div>
+                    <h2 class="card-title">Blood Report Analyzer</h2>
+                    <p class="card-subtitle">Modern medical analysis<br>AI-powered diagnostics</p>
+                </div>
+            </div>
+            <div class="card-content">
+                <div class="button-group">
+                    <input type="file" id="fileInput" class="file-input" accept=".pdf,.jpg,.jpeg,.png" />
+                    <button class="btn btn-primary" id="uploadBtn" onclick="document.getElementById('fileInput').click()">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        Upload Report
+                    </button>
+                    <div class="upload-status" id="uploadStatus"></div>
+                    <button class="btn btn-disabled" id="analyzeBtn" disabled>
+                        <i class="fas fa-search"></i>
+                        Analyze
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-leaf"></i>
+                </p>
+                </div>
+                <div>
+                    <h2 class="card-title">Ayurvedic Wisdom</h2>
+                    <p class="card-subtitle">Traditional healing insights<br>Dosha-based recommendations</p>
+                </div>
+            </div>
+            <div class="card-content">
+                <div class="button-group">
+                    <button class="btn btn-coming-soon">
+                        <i class="fas fa-seedling"></i>
+                        Get Suggestions (Coming Soon)
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="analysisPage" class="page">
+        <div class="disclaimer">
+            This analysis is for educational purposes only. Always consult qualified healthcare providers for medical decisions. Ayurvedic recommendations are complementary to, not replacement for, medical treatment.
+        </div>
+        
+        <div class="analysis-content">
+            <div class="analysis-section-title main">
+                <button class="btn-back" onclick="showPage('home')">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <i class="fas fa-file-medical-alt"></i> Report Analysis
+            </div>
+            
+            <!-- NEW: PATIENT INFORMATION DISPLAY -->
+            <div id="patientInfoDisplay" class="patient-info-card" style="display: none;">
+                <h4>Patient Details</h4>
+                <p><strong>Name:</strong> <span id="patientName"></span></p>
+                <p><strong>Age:</strong> <span id="patientAge"></span></p>
+                <p><strong>Gender:</strong> <span id="patientGender"></span></p>
+            </div>
+            <!-- END NEW SECTION -->
+
+            <div class="tabs-container">
+                <button id="tab1Btn" class="tab-btn active"><i class="fas fa-stethoscope"></i> Medical</button>
+                <button id="tab2Btn" class="tab-btn"><i class="fas fa-mortar-pestle"></i> Ayurvedic</button>
+            </div>
+
+            <div id="medicalContent">
+                <div class="analysis-section-title">
+                    <i class="fas fa-notes-medical"></i> Clinical Insights
+                </div>
+                <div id="medicalResults">
+                    <div class="placeholder-text">Upload a report to see your medical analysis here.</div>
+                </div>
+            </div>
+
+            <div id="ayurvedicContent" style="display:none;">
+                <div class="analysis-section-title">
+                    <i class="fas fa-seedling"></i> Traditional Healing
+                </div>
+                <div id="ayurvedicResults">
+                    <div class="placeholder-text">Ayurvedic recommendations will appear here after analysis.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // ? CORRECTED API URL: Points to your live Vercel backend's /analyze endpoint.
+        const API_URL = 'https://veda-analytics-backend.vercel.app/analyze';
+        
+        const homePage = document.getElementById('homePage');
+        const analysisPage = document.getElementById('analysisPage');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const fileInput = document.getElementById('fileInput');
+        const uploadStatus = document.getElementById('uploadStatus');
+        const tab1Btn = document.getElementById('tab1Btn');
+        const tab2Btn = document.getElementById('tab2Btn');
+        const medicalContent = document.getElementById('medicalContent');
+        const ayurvedicContent = document.getElementById('ayurvedicContent');
+        const medicalResults = document.getElementById('medicalResults');
+        const ayurvedicResults = document.getElementById('ayurvedicResults');
+        const patientInfoDisplay = document.getElementById('patientInfoDisplay');
+        const patientNameSpan = document.getElementById('patientName');
+        const patientAgeSpan = document.getElementById('patientAge');
+        const patientGenderSpan = document.getElementById('patientGender');
+        
+        const messageModal = document.getElementById('messageModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalMessage = document.getElementById('modalMessage');
+        const modalClose = document.getElementById('modalClose');
+
+        function showMessage(title, message) {
+            modalTitle.textContent = title;
+            modalMessage.textContent = message;
+            messageModal.style.display = 'flex';
+        }
+
+        modalClose.onclick = function() {
+            messageModal.style.display = 'none';
+        }
+
+        let currentReportData = null;
+
+        function showPage(pageId) {
+            homePage.classList.remove('active');
+            analysisPage.classList.remove('active');
+            if (pageId === 'home') {
+                homePage.classList.add('active');
+            } else if (pageId === 'analysis') {
+                analysisPage.classList.add('active');
+            }
+        }
+
+        tab1Btn.addEventListener('click', () => {
+            tab1Btn.classList.add('active');
+            tab2Btn.classList.remove('active');
+            medicalContent.style.display = 'block';
+            ayurvedicContent.style.display = 'none';
+        });
+
+        tab2Btn.addEventListener('click', async () => {
+            tab2Btn.classList.add('active');
+            tab1Btn.classList.remove('active');
+            medicalContent.style.display = 'none';
+            ayurvedicContent.style.display = 'block';
+        });
+
+        fileInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) {
+                return;
+            }
+
+            uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+            uploadBtn.classList.add('btn-loading');
+            uploadStatus.style.display = 'block';
+            uploadStatus.className = 'upload-status';
+            uploadStatus.textContent = `Uploading and analyzing report for ${file.name}...`;
+            analyzeBtn.disabled = true;
+            
+            try {
+                // This is the correct, non-hardcoded API call.
+                const rawData = await callGeminiApi(file);
+                
+                // 1. Ensure rawData is an object for merging
+                const mergedData = (Array.isArray(rawData) && rawData.length > 0 && typeof rawData[0] === 'object') 
+                    ? rawData.reduce((acc, curr) => ({ ...acc, ...curr }), {}) 
+                    : (typeof rawData === 'object' && rawData !== null ? rawData : {});
+                
+                console.log('--- BACKEND API RAW DATA ---', rawData);
+                console.log('--- MERGED DATA FOR ANALYSIS ---', mergedData);
+
+                // This is where we use the actual data from the report.
+                // All mock data has been removed. The values will come directly from the API response.
+                currentReportData = mergedData;
+
+                uploadBtn.innerHTML = '<i class="fas fa-check"></i> Report Ready';
+                uploadBtn.classList.remove('btn-loading');
+                uploadStatus.className = 'upload-status upload-success';
+                uploadStatus.textContent = `? ${file.name} analyzed successfully.`;
+                analyzeBtn.disabled = false;
+                analyzeBtn.className = 'btn btn-primary';
+
+            } catch (error) {
+                console.error('Error during file upload:', error);
+                uploadBtn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Upload Report';
+                uploadBtn.classList.remove('btn-loading');
+                uploadStatus.className = 'upload-status upload-error';
+                uploadStatus.textContent = `? Analysis failed. Error: ${error.message.substring(0, 50)}...`;
+                analyzeBtn.disabled = true;
+                analyzeBtn.className = 'btn btn-disabled';
+                showMessage('Error', `Analysis failed. Please try a different report or check the console for details.`);
+            }
+        });
+
+        analyzeBtn.addEventListener('click', () => {
+            if (currentReportData) {
+                updateAnalysisPage(currentReportData);
+                showPage('analysis');
+            } else {
+                showMessage('Error', 'Please upload and process a report first.');
+            }
+        });
+
+        async function callGeminiApi(file) {
+            const formData = new FormData();
+            formData.append('report', file);
+            
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                body: formData
+            });
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`API Error ${response.status}: ${errorText}`);
+            }
+            
+            const result = await response.json();
+            return result;
+        }
+
+        // COMPLETE MEDICAL DATABASE - FUNCTIONS ONLY (NO UI)
+
+        // ========== DIABETES & METABOLIC ==========
+        function analyzeHbA1c(value) {
+          if (value < 5.7) {
+            return { status: 'Normal', color: 'green', risk: 'Low diabetes risk' };
+          } else if (value >= 5.7 && value <= 6.4) {
+            return { status: 'Prediabetic', color: 'orange', risk: 'High diabetes risk', alert: 'Consult doctor within 2 weeks' };
+          } else {
+            return { status: 'Diabetic', color: 'red', risk: 'Diabetes confirmed', alert: 'Immediate medical consultation required' };
+          }
+        }
+
+        function analyzeFastingGlucose(value) {
+          if (value < 100) {
+            return { status: 'Normal', color: 'green', risk: 'Healthy glucose metabolism' };
+          } else if (value >= 100 && value <= 125) {
+            return { status: 'Prediabetic', color: 'orange', risk: 'Impaired fasting glucose', alert: 'Dietary changes needed immediately' };
+          } else {
+            return { status: 'Diabetic', color: 'red', risk: 'Diabetes diagnosis criteria met', alert: 'Medical treatment required urgently' };
+          }
+        }
+
+        // ========== LIPID PROFILE ==========
+        function analyzeCholesterol(value) {
+          if (value < 200) {
+            return { status: 'Optimal', color: 'green', risk: 'Low cardiovascular risk' };
+          } else if (value >= 200 && value <= 239) {
+            return { status: 'Borderline High', color: 'orange', risk: 'Moderate cardiovascular risk', alert: 'Lifestyle modifications recommended' };
+          } else {
+            return { status: 'High', color: 'red', risk: 'High cardiovascular risk', alert: 'Statin therapy consideration needed' };
+          }
+        }
+
+        function analyzeLDL(value) {
+          if (value < 100) {
+            return { status: 'Optimal', color: 'green', risk: 'Excellent heart protection' };
+          } else if (value >= 100 && value <= 129) {
+            return { status: 'Near Optimal', color: 'green', risk: 'Good heart health' };
+          } else if (value >= 130 && value <= 159) {
+            return { status: 'Borderline High', color: 'orange', risk: 'Moderate heart disease risk', alert: 'Diet and exercise modifications needed' };
+          } else if (value >= 160 && value <= 189) {
+            return { status: 'High', color: 'red', risk: 'High heart disease risk', alert: 'Medical evaluation for cholesterol therapy' };
+          } else {
+            return { status: 'Very High', color: 'red', risk: 'Very high heart attack risk', alert: 'Immediate cardiology consultation' };
+          }
+        }
+
+        function analyzeHDL(value, gender) {
+          const threshold = gender === 'male' ? 40 : 50;
+          if (value < threshold) {
+            return { status: 'Low', color: 'red', risk: 'Increased heart disease risk', alert: 'Exercise and healthy fats needed' };
+          } else if (value >= threshold && value < 60) {
+            return { status: 'Normal', color: 'green', risk: 'Adequate protection' };
+          } else {
+            return { status: 'Protective', color: 'green', risk: 'Excellent heart protection' };
+          }
+        }
+
+        function analyzeTriglycerides(value) {
+          if (value < 150) {
+            return { status: 'Normal', color: 'green', risk: 'Healthy fat metabolism' };
+          } else if (value >= 150 && value <= 199) {
+            return { status: 'Borderline High', color: 'orange', risk: 'Moderate cardiovascular risk', alert: 'Reduce sugar and refined carbs' };
+          } else if (value >= 200 && value <= 499) {
+            return { status: 'High', color: 'red', risk: 'High cardiovascular and pancreatitis risk', alert: 'Immediate dietary changes needed' };
+          } else {
+            return { status: 'Very High', color: 'red', risk: 'Critical pancreatitis risk', alert: 'Emergency medical evaluation required' };
+          }
+        }
+
+        // ========== BLOOD DISORDERS ==========
+        function analyzeHemoglobin(value, gender) {
+          const ranges = gender === 'male' ? { low: 13.8, high: 17.2 } : { low: 12.1, high: 15.1 };
+          if (value < ranges.low) {
+            return { status: 'Low (Anemia)', color: 'red', risk: 'Iron deficiency, chronic disease', alert: 'Iron studies and nutritional assessment needed' };
+          } else if (value >= ranges.low && value <= ranges.high) {
+            return { status: 'Normal', color: 'green', risk: 'Healthy oxygen transport' };
+          } else {
+            return { status: 'High', color: 'orange', risk: 'Dehydration or polycythemia', alert: 'Hydration and hematology evaluation' };
+          }
+        }
+
+        function analyzeWBC(value) {
+          if (value < 4.5) {
+            return { status: 'Low (Leukopenia)', color: 'red', risk: 'Immune system suppression', alert: 'Possible infection, autoimmune disease, or medication effect' };
+          } else if (value >= 4.5 && value <= 11.0) {
+            return { status: 'Normal', color: 'green', risk: 'Healthy immune function' };
+          } else if (value > 11.0 && value <= 15.0) {
+            return { status: 'Elevated', color: 'orange', risk: 'Possible infection or inflammation', alert: 'Monitor for infection, stress response' };
+          } else {
+            return { status: 'High', color: 'red', risk: 'Serious infection or blood disorder', alert: 'Immediate medical evaluation required' };
+          }
+        }
+
+        function analyzePlateletCount(value) {
+          if (value < 150) {
+            return { status: 'Low (Thrombocytopenia)', color: 'red', risk: 'Bleeding risk', alert: 'Hematology consultation for bleeding risk' };
+          } else if (value >= 150 && value <= 450) {
+            return { status: 'Normal', color: 'green', risk: 'Normal blood clotting' };
+          } else {
+            return { status: 'High (Thrombocytosis)', color: 'orange', risk: 'Blood clot risk', alert: 'Evaluate for clotting disorders' };
+          }
+        }
+
+        // ========== LIVER FUNCTION ==========
+        function analyzeALT(value, gender) {
+          const threshold = gender === 'male' ? 40 : 35;
+          if (value <= threshold) {
+            return { status: 'Normal', color: 'green', risk: 'Healthy liver function' };
+          } else if (value > threshold && value <= threshold * 2) {
+            return { status: 'Elevated', color: 'orange', risk: 'Mild liver stress', alert: 'Avoid alcohol, review medications' };
+          } else {
+            return { status: 'High', color: 'red', risk: 'Significant liver damage', alert: 'Hepatology consultation recommended' };
+          }
+        }
+
+        function analyzeAST(value, gender) {
+          const threshold = gender === 'male' ? 40 : 32;
+          if (value <= threshold) {
+            return { status: 'Normal', color: 'green', risk: 'Healthy liver function' };
+          } else if (value > threshold && value <= threshold * 2) {
+            return { status: 'Elevated', color: 'orange', risk: 'Liver or muscle damage', alert: 'Monitor liver function, avoid alcohol' };
+          } else {
+            return { status: 'High', color: 'red', risk: 'Significant liver damage', alert: 'Immediate hepatology consultation' };
+          }
+        }
+
+        function analyzeBilirubin(value) {
+          if (value <= 1.2) {
+            return { status: 'Normal', color: 'green', risk: 'Normal liver processing' };
+          } else if (value > 1.2 && value <= 2.5) {
+            return { status: 'Elevated', color: 'orange', risk: 'Mild liver dysfunction', alert: 'Monitor liver function' };
+          } else {
+            return { status: 'High', color: 'red', risk: 'Significant liver dysfunction or obstruction', alert: 'Immediate medical evaluation for jaundice' };
+          }
+        }
+
+        // ========== KIDNEY FUNCTION ==========
+        function analyzeCreatinine(value, gender) {
+          const ranges = gender === 'male' ? { normal: 1.3 } : { normal: 1.1 };
+          if (value <= ranges.normal) {
+            return { status: 'Normal', color: 'green', risk: 'Healthy kidney function' };
+          } else if (value > ranges.normal && value <= ranges.normal * 1.5) {
+            return { status: 'Elevated', color: 'orange', risk: 'Mild kidney dysfunction', alert: 'Monitor kidney function and hydration' };
+          } else {
+            return { status: 'High', color: 'red', risk: 'Significant kidney impairment', alert: 'Nephrology consultation recommended' };
+          }
+        }
+
+        function analyzeBUN(value) {
+          if (value <= 20) {
+            return { status: 'Normal', color: 'green', risk: 'Normal kidney function' };
+          } else if (value > 20 && value <= 30) {
+            return { status: 'Elevated', color: 'orange', risk: 'Mild kidney dysfunction', alert: 'Monitor kidney function' };
+          } else {
+            return { status: 'High', color: 'red', risk: 'Significant kidney dysfunction', alert: 'Immediate nephrology evaluation' };
+          }
+        }
+
+        function analyzeUricAcid(value, gender) {
+          const threshold = gender === 'male' ? 7.0 : 6.0;
+          if (value <= threshold) {
+            return { status: 'Normal', color: 'green', risk: 'Low gout risk' };
+          } else if (value > threshold && value <= threshold + 2) {
+            return { status: 'Elevated', color: 'orange', risk: 'Moderate gout risk', alert: 'Reduce purine-rich foods, increase water' };
+          } else {
+            return { status: 'High', color: 'red', risk: 'High gout and kidney stone risk', alert: 'Medical evaluation for gout prevention needed' };
+          }
+        }
+
+        // ========== THYROID FUNCTION ==========
+        function analyzeTSH(value) {
+          if (value >= 0.3 && value <= 5.5) {
+            return { status: 'Normal', color: 'green', risk: 'Normal thyroid function' };
+          } else if (value < 0.3) {
+            return { status: 'Low (Hyperthyroid)', color: 'red', risk: 'Overactive thyroid', alert: 'Endocrinology consultation for hyperthyroidism' };
+          } else if (value > 5.5 && value <= 10) {
+            return { status: 'Elevated (Hypothyroid)', color: 'orange', risk: 'Underactive thyroid', alert: 'Consider thyroid hormone replacement' };
+          } else {
+            return { status: 'High (Severe Hypothyroid)', color: 'red', risk: 'Severe thyroid dysfunction', alert: 'Immediate endocrinology consultation' };
+          }
+        }
+
+        function analyzeT3(value) {
+          if (value >= 60 && value <= 200) {
+            return { status: 'Normal', color: 'green', risk: 'Normal thyroid hormone levels' };
+          } else if (value < 60) {
+            return { status: 'Low', color: 'red', risk: 'Hypothyroidism', alert: 'Thyroid hormone replacement may be needed' };
+          } else {
+            return { status: 'High', color: 'red', risk: 'Hyperthyroidism', alert: 'Anti-thyroid treatment consideration' };
+          }
+        }
+
+        function analyzeT4(value) {
+          if (value >= 4.5 && value <= 12.0) {
+            return { status: 'Normal', color: 'green', risk: 'Normal thyroid hormone levels' };
+          } else if (value < 4.5) {
+            return { status: 'Low', color: 'red', risk: 'Hypothyroidism', alert: 'Thyroid hormone replacement needed' };
+          } else {
+            return { status: 'High', color: 'red', risk: 'Hyperthyroidism', alert: 'Anti-thyroid medication consideration' };
+          }
+        }
+
+        // ========== INFLAMMATORY MARKERS ==========
+        function analyzeESR(value, gender) {
+          const threshold = gender === 'male' ? 15 : 20;
+          if (value <= threshold) {
+            return { status: 'Normal', color: 'green', risk: 'No significant inflammation' };
+          } else if (value > threshold && value <= threshold * 2) {
+            return { status: 'Elevated', color: 'orange', risk: 'Mild inflammation', alert: 'Monitor for inflammatory conditions' };
+          } else {
+            return { status: 'High', color: 'red', risk: 'Significant inflammation', alert: 'Evaluate for autoimmune or infectious disease' };
+          }
+        }
+
+        function analyzeCRP(value) {
+          if (value < 3.0) {
+            return { status: 'Normal', color: 'green', risk: 'Low cardiovascular risk' };
+          } else if (value >= 3.0 && value <= 10.0) {
+            return { status: 'Elevated', color: 'orange', risk: 'Moderate inflammation', alert: 'Lifestyle modifications for inflammation' };
+          } else {
+            return { status: 'High', color: 'red', risk: 'Significant inflammation or infection', alert: 'Evaluate for serious inflammatory condition' };
+          }
+        }
+
+        // ========== VITAMINS & MINERALS ==========
+        function analyzeVitaminD(value) {
+          if (value >= 30) {
+            return { status: 'Sufficient', color: 'green', risk: 'Adequate bone health' };
+          } else if (value >= 20 && value < 30) {
+            return { status: 'Insufficient', color: 'orange', risk: 'Bone weakness risk', alert: 'Vitamin D supplementation recommended' };
+          } else {
+            return { status: 'Deficient', color: 'red', risk: 'Osteoporosis, immune dysfunction', alert: 'High-dose vitamin D therapy needed' };
+          }
+        }
+
+        function analyzeVitaminB12(value) {
+          if (value >= 200) {
+            return { status: 'Normal', color: 'green', risk: 'Adequate B12 levels' };
+          } else if (value >= 150 && value < 200) {
+            return { status: 'Low', color: 'orange', risk: 'B12 deficiency risk', alert: 'B12 supplementation recommended' };
+          } else {
+            return { status: 'Deficient', color: 'red', risk: 'Pernicious anemia, nerve damage', alert: 'B12 injections may be required' };
+          }
+        }
+
+        function analyzeFolate(value) {
+          if (value >= 3.0) {
+            return { status: 'Normal', color: 'green', risk: 'Adequate folate levels' };
+          } else if (value >= 2.0 && value < 3.0) {
+            return { status: 'Low', color: 'orange', risk: 'Folate deficiency risk', alert: 'Folate supplementation recommended' };
+          } else {
+            return { status: 'Deficient', color: 'red', risk: 'Megaloblastic anemia', alert: 'High-dose folate therapy needed' };
+          }
+        }
+
+        // ========== IRON STUDIES ==========
+        function analyzeIron(value, gender) {
+          const ranges = gender === 'male' ? { min: 80, max: 180 } : { min: 60, max: 170 };
+          if (value >= ranges.min && value <= ranges.max) {
+            return { status: 'Normal', color: 'green', risk: 'Adequate iron levels' };
+          } else if (value < ranges.min) {
+            return { status: 'Low', color: 'red', risk: 'Iron deficiency anemia', alert: 'Iron supplementation and dietary changes needed' };
+          } else {
+            return { status: 'High', color: 'orange', risk: 'Iron overload risk', alert: 'Evaluate for hemochromatosis' };
+          }
+        }
+
+        function analyzeFerritin(value, gender) {
+          const ranges = gender === 'male' ? { min: 12, max: 300 } : { min: 12, max: 150 };
+          if (value >= ranges.min && value <= ranges.max) {
+            return { status: 'Normal', color: 'green', risk: 'Adequate iron stores' };
+          } else if (value < ranges.min) {
+            return { status: 'Low', color: 'red', risk: 'Iron deficiency', alert: 'Iron supplementation required' };
+          } else {
+            return { status: 'High', color: 'orange', risk: 'Iron overload or inflammation', alert: 'Evaluate for hemochromatosis or chronic disease' };
+          }
+        }
+
+        // ========== CARDIAC MARKERS ==========
+        function analyzeTroponin(value) {
+          if (value < 0.04) {
+            return { status: 'Normal', color: 'green', risk: 'No heart damage' };
+          } else if (value >= 0.04 && value < 0.40) {
+            return { status: 'Elevated', color: 'orange', risk: 'Possible heart muscle damage', alert: 'Cardiology evaluation recommended' };
+          } else {
+            return { status: 'High', color: 'red', risk: 'Heart attack likely', alert: 'Emergency cardiac care required immediately' };
+          }
+        }
+
+        function analyzeCKMB(value) {
+          if (value <= 6.3) {
+            return { status: 'Normal', color: 'green', risk: 'No heart muscle damage' };
+          } else if (value > 6.3 && value <= 15) {
+            return { status: 'Elevated', color: 'orange', risk: 'Possible heart damage', alert: 'Monitor cardiac status' };
+          } else {
+            return { status: 'High', color: 'red', risk: 'Significant heart muscle damage', alert: 'Immediate cardiac intervention needed' };
+          }
+        }
+
+        // ========== TUMOR MARKERS ==========
+        function analyzePSA(value, age) {
+          let threshold = 4.0;
+          if (age < 50) threshold = 2.5;
+          else if (age >= 60 && age < 70) threshold = 4.5;
+          else if (age >= 70) threshold = 6.5;
+          
+          if (value <= threshold) {
+            return { status: 'Normal', color: 'green', risk: 'Low prostate cancer risk' };
+          } else if (value > threshold && value <= 10) {
+            return { status: 'Elevated', color: 'orange', risk: 'Possible prostate issues', alert: 'Urology consultation recommended' };
+          } else {
+            return { status: 'High', color: 'red', risk: 'High prostate cancer risk', alert: 'Immediate urology evaluation required' };
+          }
+        }
+
+        function analyzeCEA(value) {
+          if (value <= 3.0) {
+            return { status: 'Normal', color: 'green', risk: 'Low cancer risk' };
+          } else if (value > 3.0 && value <= 10) {
+            return { status: 'Elevated', color: 'orange', risk: 'Possible cancer or inflammation', alert: 'Oncology consultation recommended' };
+          } else {
+            return { status: 'High', color: 'red', risk: 'High cancer risk', alert: 'Immediate oncology evaluation required' };
+          }
+        }
+
+        function analyzeAFP(value) {
+          if (value <= 9) {
+            return { status: 'Normal', color: 'green', risk: 'Low liver cancer risk' };
+          } else if (value > 9 && value <= 20) {
+            return { status: 'Elevated', color: 'orange', risk: 'Possible liver issues', alert: 'Hepatology consultation recommended' };
+          } else {
+            return { status: 'High', color: 'red', risk: 'High liver cancer risk', alert: 'Immediate oncology evaluation required' };
+          }
+        }
+
+        // ========== INFECTIOUS DISEASE MARKERS ==========
+        function analyzeMalariaRapidTest(result) {
+          if (result === 'negative' || result === 'non-reactive') {
+            return { status: 'Negative', color: 'green', risk: 'No malaria detected' };
+          } else if (result === 'positive' || result === 'reactive') {
+            return { status: 'Positive', color: 'red', risk: 'Malaria infection confirmed', alert: 'Immediate antimalarial treatment required' };
+          }
+        }
+
+        function analyzeTyphoidTest(result) {
+          if (result === 'negative' || result === 'non-reactive') {
+            return { status: 'Negative', color: 'green', risk: 'No typhoid detected' };
+          } else if (result === 'positive' || result === 'reactive') {
+            return { status: 'Positive', color: 'red', risk: 'Typhoid fever confirmed', alert: 'Immediate antibiotic treatment required' };
+          }
+        }
+
+        function analyzeWidalTest(titer_value) {
+          if (titer_value < 80) {
+            return { status: 'Normal', color: 'green', risk: 'No significant typhoid antibodies' };
+          } else if (titer_value >= 80 && titer_value < 160) {
+            return { status: 'Borderline', color: 'orange', risk: 'Possible past infection or early stage', alert: 'Repeat test in 7 days' };
+          } else {
+            return { status: 'High Titer', color: 'red', risk: 'Active typhoid infection likely', alert: 'Start antibiotic treatment immediately' };
+          }
+        }
+
+        function analyzeDengueNS1(result) {
+          if (result === 'negative') {
+            return { status: 'Negative', color: 'green', risk: 'No dengue NS1 antigen detected' };
+          } else {
+            return { status: 'Positive', color: 'red', risk: 'Dengue infection confirmed', alert: 'Monitor for dengue hemorrhagic fever, immediate medical care' };
+          }
+        }
+
+        function analyzeDengueIgM(result) {
+          if (result === 'negative') {
+            return { status: 'Negative', color: 'green', risk: 'No recent dengue infection' };
+          } else {
+            return { status: 'Positive', color: 'red', risk: 'Recent dengue infection', alert: 'Monitor platelet count, avoid aspirin' };
+          }
+        }
+
+        function analyzeChikungunyaIgM(result) {
+          if (result === 'negative') {
+            return { status: 'Negative', color: 'green', risk: 'No recent chikungunya infection' };
+          } else {
+            return { status: 'Positive', color: 'red', risk: 'Chikungunya infection confirmed', alert: 'Supportive care, joint pain management' };
+          }
+        }
+
+        function analyzeHepatitisB(result) {
+          if (result === 'negative' || result === 'non-reactive') {
+            return { status: 'Negative', color: 'green', risk: 'No Hepatitis B infection' };
+          } else {
+            return { status: 'Positive', color: 'red', risk: 'Hepatitis B infection', alert: 'Hepatology consultation, antiviral treatment consideration' };
+          }
+        }
+
+        function analyzeHepatitisC(result) {
+          if (result === 'negative' || result === 'non-reactive') {
+            return { status: 'Negative', color: 'green', risk: 'No Hepatitis C infection' };
+          } else {
+            return { status: 'Positive', color: 'red', risk: 'Hepatitis C infection', alert: 'Immediate hepatology referral, antiviral treatment' };
+          }
+        }
+
+        function analyzeHIV(result) {
+          if (result === 'negative' || result === 'non-reactive') {
+            return { status: 'Negative', color: 'green', risk: 'No HIV infection detected' };
+          } else {
+            return { status: 'Positive', color: 'red', risk: 'HIV infection confirmed', alert: 'Immediate HIV specialist consultation, start ART' };
+          }
+        }
+
+        function analyzeTuberculosis(result) {
+          if (result === 'negative') {
+            return { status: 'Negative', color: 'green', risk: 'No TB bacteria detected' };
+          } else {
+            return { status: 'Positive', color: 'red', risk: 'Tuberculosis confirmed', alert: 'Immediate isolation and anti-TB treatment required' };
+          }
+        }
+
+        function analyzeProcalcitonin(value) {
+          if (value < 0.1) {
+            return { status: 'Normal', color: 'green', risk: 'Low bacterial infection risk' };
+          } else if (value >= 0.1 && value < 0.25) {
+            return { status: 'Borderline', color: 'orange', risk: 'Possible bacterial infection', alert: 'Monitor clinical signs' };
+          } else if (value >= 0.25 && value < 2.0) {
+            return { status: 'Elevated', color: 'red', risk: 'Bacterial infection likely', alert: 'Consider antibiotic therapy' };
+          } else {
+            return { status: 'Very High', color: 'red', risk: 'Severe bacterial infection/sepsis', alert: 'Immediate ICU care, broad spectrum antibiotics' };
+          }
+        }
+
+        // ========== AUTOIMMUNE CONDITIONS ==========
+        function analyzeANA(titer) {
+          if (titer < 80) {
+            return { status: 'Negative', color: 'green', risk: 'No autoimmune activity detected' };
+          } else if (titer >= 80 && titer < 160) {
+            return { status: 'Low Positive', color: 'orange', risk: 'Mild autoimmune activity', alert: 'Monitor for autoimmune symptoms' };
+          } else {
+            return { status: 'High Positive', color: 'red', risk: 'Significant autoimmune activity', alert: 'Rheumatology consultation recommended' };
+          }
+        }
+
+        function analyzeRheumatoidFactor(value) {
+          if (value <= 13) {
+            return { status: 'Normal', color: 'green', risk: 'No rheumatoid arthritis markers' };
+          } else if (value > 13 && value <= 25) {
+            return { status: 'Borderline', color: 'orange', risk: 'Possible RA or other conditions', alert: 'Clinical correlation needed' };
+          } else {
+            return { status: 'High', color: 'red', risk: 'Rheumatoid arthritis likely', alert: 'Rheumatology consultation for RA treatment' };
+          }
+        }
+
+        // ========== HORMONAL CONDITIONS ==========
+        function analyzeTestosterone(value, gender) {
+          if (gender === 'male') {
+            if (value >= 300 && value <= 1000) {
+              return { status: 'Normal', color: 'green', risk: 'Healthy testosterone levels' };
+            } else if (value < 300) {
+              return { status: 'Low', color: 'red', risk: 'Hypogonadism', alert: 'Endocrinology consultation for testosterone therapy' };
+            } else {
+              return { status: 'High', color: 'orange', risk: 'Possible steroid use or tumor', alert: 'Investigate cause of high testosterone' };
+            }
+          } else {
+            if (value >= 15 && value <= 70) {
+              return { status: 'Normal', color: 'green', risk: 'Normal female testosterone' };
+            } else if (value > 70) {
+              return { status: 'High', color: 'red', risk: 'PCOS or hormonal imbalance', alert: 'Gynecology/Endocrinology consultation' };
+            }
+          }
+        }
+
+        function analyzeCortisol(value) {
+          if (value >= 6.2 && value <= 19.4) {
+            return { status: 'Normal', color: 'green', risk: 'Normal stress hormone levels' };
+          } else if (value < 6.2) {
+            return { status: 'Low', color: 'red', risk: 'Adrenal insufficiency', alert: 'Endocrinology evaluation for Addison\'s disease' };
+          } else {
+            return { status: 'High', color: 'orange', risk: 'Cushing\'s syndrome or stress', alert: 'Evaluate for cortisol excess disorders' };
+          }
+        }
+
+        // ========== COAGULATION DISORDERS ==========
+        function analyzePT_INR(value) {
+          if (value >= 0.8 && value <= 1.1) {
+            return { status: 'Normal', color: 'green', risk: 'Normal blood clotting' };
+          } else if (value > 1.1 && value <= 2.0) {
+            return { status: 'Prolonged', color: 'orange', risk: 'Mild bleeding risk', alert: 'Review blood thinning medications' };
+          } else {
+            return { status: 'Very Prolonged', color: 'red', risk: 'High bleeding risk', alert: 'Hematology consultation, bleeding precautions' };
+          }
+        }
+
+        function analyzePTT(value) {
+          if (value >= 25 && value <= 35) {
+            return { status: 'Normal', color: 'green', risk: 'Normal clotting pathway' };
+          } else if (value > 35 && value <= 45) {
+            return { status: 'Prolonged', color: 'orange', risk: 'Mild clotting defect', alert: 'Monitor for bleeding' };
+          } else if (value > 45) {
+            return { status: 'Very Prolonged', color: 'red', risk: 'Significant bleeding risk', alert: 'Hematology evaluation needed' };
+          }
+        }
+
+        function analyzeDDimer(value) {
+          if (value < 0.5) {
+            return { status: 'Normal', color: 'green', risk: 'Low blood clot risk' };
+          } else if (value >= 0.5 && value <= 1.0) {
+            return { status: 'Elevated', color: 'orange', risk: 'Possible clot formation', alert: 'Clinical correlation needed' };
+          } else {
+            return { status: 'High', color: 'red', risk: 'High probability of blood clots', alert: 'Immediate imaging for DVT/PE evaluation' };
+          }
+        }
+
+        // ========== AYURVEDIC RECOMMENDATIONS DATABASE ==========
+        function getAyurvedicRecommendation(parameter) {
+          const recommendations = {
+            // DIABETES & METABOLIC
+            hba1c: {
+              condition: 'Madhumeha (Diabetes)',
+              dosha: 'Kapha-Pitta imbalance',
+              view: 'Excessive Kapha blocks glucose metabolism, Pitta creates pancreatic heat',
+              avoid: ['Sweet foods', 'Cold foods', 'Heavy foods', 'Refined carbs'],
+              include: ['Bitter vegetables', 'Whole grains', 'Green leafy vegetables'],
+              yoga: ['Surya Namaskara (12 rounds)', 'Bhujangasana', 'Dhanurasana'],
+              pranayama: ['Kapalbhati (100 counts)', 'Anulom-Vilom (15 min)'],
+              exercise: ['Brisk walking 45 min', 'Swimming', 'Cycling'],
+              medicines: '[DIABETES MEDICINE DATABASE TO BE ADDED]'
+            },
+
+            fasting_glucose: {
+              condition: 'Madhumeha Purvarupa (Pre-diabetes)',
+              dosha: 'Kapha accumulation',
+              view: 'Early Kapha imbalance affecting glucose metabolism',
+              avoid: ['Sugar', 'White rice', 'Processed foods'],
+              include: ['Bitter gourd', 'Fenugreek', 'Turmeric'],
+              yoga: ['Vajrasana after meals', 'Pawanmuktasana'],
+              pranayama: ['Bhramari', 'Ujjayi'],
+              exercise: ['Regular walking', 'Yoga practice'],
+              medicines: '[PREDIABETES MEDICINE DATABASE TO BE ADDED]'
+            },
+            
+            estimated_average_glucose: {
+              condition: 'Madhumeha Purvarupa (Pre-diabetes)',
+              dosha: 'Kapha accumulation',
+              view: 'Early Kapha imbalance affecting glucose metabolism',
+              avoid: ['Sugar', 'White rice', 'Processed foods'],
+              include: ['Bitter gourd', 'Fenugreek', 'Turmeric'],
+              yoga: ['Vajrasana after meals', 'Pawanmuktasana'],
+              pranayama: ['Bhramari', 'Ujjayi'],
+              exercise: ['Regular walking', 'Yoga practice'],
+              medicines: '[PREDIABETES MEDICINE DATABASE TO BE ADDED]'
+            },
+
+
+            // CARDIOVASCULAR
+            total_cholesterol: {
+              condition: 'Medoroga (Lipid disorders)',
+              dosha: 'Kapha excess',
+              view: 'Excessive Kapha accumulates as fatty tissue',
+              avoid: ['Ghee', 'Butter', 'Fried foods', 'Red meat'],
+              include: ['Oats', 'Barley', 'Green vegetables', 'Garlic'],
+              yoga: ['Vrikshasana', 'Trikonasana', 'Ustrasana'],
+              pranayama: ['Ujjayi breathing', 'Bhastrika'],
+              exercise: ['Cardio 5 days/week', 'Swimming', 'Dancing'],
+              medicines: '[CHOLESTEROL MEDICINE DATABASE TO BE ADDED]'
+            },
+
+            ldl_cholesterol: {
+              condition: 'Dusta Medas (Bad cholesterol)',
+              dosha: 'Kapha-Ama combination',
+              view: 'Toxins combine with fat tissue creating harmful cholesterol',
+              avoid: ['Saturated fats', 'Trans fats', 'Processed meats'],
+              include: ['Fiber foods', 'Plant sterols', 'Antioxidants'],
+              yoga: ['Heart opening poses', 'Backbends'],
+              pranayama: ['Anulom-Vilom', 'Bhramari'],
+              exercise: ['Aerobic exercise', 'Interval training'],
+              medicines: '[LDL REDUCTION MEDICINE DATABASE TO BE ADDED]'
+            },
+
+            hdl_cholesterol: {
+              condition: 'Agnimandya (Weak digestive fire)',
+              dosha: 'Kapha-Vata imbalance',
+              view: 'Poor lipid metabolism due to weak digestive fire',
+              avoid: ['Trans fats', 'Processed foods', 'Refined sugars'],
+              include: ['Nuts', 'Seeds', 'Olive oil', 'Avocado'],
+              yoga: ['Bhujangasana', 'Dhanurasana', 'Matsyasana'],
+              pranayama: ['Bhramari', 'Nadi Shodhana'],
+              exercise: ['Resistance training', 'Weight lifting'],
+              medicines: '[HDL IMPROVEMENT MEDICINE DATABASE TO BE ADDED]'
+            },
+
+            triglycerides: {
+              condition: 'Medas Vriddhi (Excessive fat)',
+              dosha: 'Kapha-Pitta aggravation',
+              view: 'Disturbed digestive fire creates fat accumulation',
+              avoid: ['Sugar', 'Alcohol', 'Refined flour'],
+              include: ['Bitter tastes', 'Fiber foods', 'Green vegetables'],
+              yoga: ['Paschimottanasana', 'Halasana', 'Twisting poses'],
+              pranayama: ['Ujjayi', 'Bhastrika'],
+              exercise: ['HIIT training', 'Fat-burning cardio'],
+              medicines: '[TRIGLYCERIDE MEDICINE DATABASE TO BE ADDED]'
+            },
+
+            // BLOOD DISORDERS
+            hemoglobin: {
+              condition: 'Pandu Roga (Anemia)',
+              dosha: 'Pitta-Vata imbalance',
+              view: 'Poor blood formation due to weak digestive fire',
+              avoid: ['Tea with meals', 'Cold foods', 'Processed foods'],
+              include: ['Iron-rich foods', 'Green leafy vegetables', 'Dates'],
+              yoga: ['Gentle forward bends', 'Supported inversions'],
+              pranayama: ['Bhramari', 'Nadi Shodhana'],
+              exercise: ['Moderate exercise', 'Walking'],
+              medicines: '[ANEMIA MEDICINE DATABASE TO BE ADDED]'
+            },
+
+            wbc_count: {
+              condition: 'Ojokshaya (Immunity weakness)',
+              dosha: 'All three doshas imbalanced',
+              view: 'Weak immune system due to poor Ojas (vital essence)',
+              avoid: ['Stress', 'Lack of sleep', 'Processed foods'],
+              include: ['Immune boosting herbs', 'Fresh fruits', 'Whole grains'],
+              yoga: ['Restorative poses', 'Gentle practice'],
+              pranayama: ['Deep breathing', 'Relaxation techniques'],
+              exercise: ['Gentle activities', 'Avoid overexertion'],
+              medicines: '[IMMUNITY MEDICINE DATABASE TO BE ADDED]'
+            },
+
+            platelet_count: {
+              condition: 'Rakta Pitta (Bleeding disorders)',
+              dosha: 'Pitta-Vata disturbance',
+              view: 'Disturbed blood clotting due to heat and movement imbalance',
+              avoid: ['Spicy foods', 'Alcohol', 'Blood thinning foods'],
+              include: ['Cooling foods', 'Sweet fruits', 'Coconut water'],
+              yoga: ['Cooling poses', 'Restorative practice'],
+              pranayama: ['Sheetali', 'Sheetkari', 'Moon breathing'],
+              exercise: ['Gentle activities', 'Avoid contact sports'],
+              medicines: '[BLEEDING DISORDERS MEDICINE DATABASE TO BE ADDED]'
+            },
+
+            // INFECTIOUS DISEASES
+            malaria_rapid_test: {
+              condition: 'Visham Jwara (Intermittent fever)',
+              dosha: 'Pitta-Kapha aggravation',
+              view: 'Parasitic invasion causing cyclical fever patterns',
+              avoid: ['Cold foods', 'Heavy foods', 'Stagnant water areas'],
+              include: ['Bitter herbs', 'Immune boosting foods', 'Warm liquids'],
+              yoga: ['Gentle poses only', 'Avoid strenuous practice'],
+              pranayama: ['Cooling breaths', 'Relaxation techniques'],
+              exercise: ['Complete rest', 'No exercise during fever'],
+              medicines: '[MALARIA SUPPORT MEDICINE DATABASE TO BE ADDED]'
+            },
+
+            typhoid_test: {
+              condition: 'Antrik Jwara (Internal fever)',
+              dosha: 'Pitta-Vata aggravation',
+              view: 'Bacterial invasion causing prolonged fever and weakness',
+              avoid: ['Spicy foods', 'Raw foods', 'Contaminated water'],
+              include: ['Light digestible foods', 'Boiled water', 'Electrolytes'],
+              yoga: ['Complete rest', 'No yoga during acute phase'],
+              pranayama: ['Gentle breathing only'],
+              exercise: ['Bed rest mandatory', 'Gradual mobilization'],
+              medicines: '[TYPHOID SUPPORT MEDICINE DATABASE TO BE ADDED]'
+            },
+
+            dengue_ns1: {
+              condition: 'Dantak Jwara (Mosquito fever)',
+              dosha: 'Pitta-Rakta vitiation',
+              view: 'Viral fever affecting blood and causing bleeding tendency',
+              avoid: ['Aspirin', 'Blood thinning foods', 'Dehydration'],
+              include: ['Papaya leaf juice', 'Plenty of fluids', 'Platelet supporting foods'],
+              yoga: ['Avoid all physical activity'],
+              pranayama: ['Gentle breathing exercises'],
+              exercise: ['Complete rest', 'Monitor platelet count'],
+              medicines: '[DENGUE SUPPORT MEDICINE DATABASE TO BE ADDED]'
+            },
+
+            hepatitis_b: {
+              condition: 'Yakrit Shotha (Liver inflammation)',
+              dosha: 'Pitta-Kapha aggravation',
+              view: 'Viral infection causing severe liver inflammation',
+              avoid: ['Alcohol', 'Fatty foods', 'Hepatotoxic drugs'],
+              include: ['Liver protective herbs', 'Light foods', 'Adequate rest'],
+              yoga: ['Gentle liver supporting poses', 'Avoid inversions'],
+              pranayama: ['Cooling breaths', 'Stress reduction'],
+              exercise: ['Light walking only', 'Avoid strenuous activity'],
+              medicines: '[HEPATITIS SUPPORT MEDICINE DATABASE TO BE ADDED]'
+            }
+          };
+          
+          return recommendations[parameter] || null;
+        }
+
+        // ========== MAIN ANALYSIS ENGINE ==========
+        function analyzeCompleteBloodReport(bloodData) {
+          
+          const results = {
+            patient_info: {},
+            problematic_parameters: [],
+            medical_analysis: {},
+            ayurvedic_recommendations: {},
+            disease_categories: {
+              diabetes: [],
+              cardiovascular: [],
+              liver: [],
+              kidney: [],
+              blood_disorders: [],
+              thyroid: [],
+              inflammatory: [],
+              nutritional: [],
+              cardiac: [],
+              cancer_markers: [],
+              infectious_diseases: [],
+              viral_infections: [],
+              autoimmune: [],
+              hormonal: [],
+              coagulation: []
+            }
+          };
+
+          const normalizedData = {};
+          for (const key in bloodData) {
+              if (Object.prototype.hasOwnProperty.call(bloodData, key)) {
+                  // A robust normalization function
+                  const normalizedKey = key.toLowerCase().replace(/[\s\(\)\/]+/g, '_').replace(/^_|_$/g, '');
+                  normalizedData[normalizedKey] = bloodData[key];
+              }
+          }
+
+          // Extract and format patient information
+          let patientAge = 'N/A';
+          let patientGender = 'N/A';
+          if (normalizedData.age_sex) {
+              const parts = normalizedData.age_sex.split(' ');
+              if (parts.length >= 2) {
+                  patientAge = parts[0] + ' Years';
+                  patientGender = parts[2];
+              }
+          }
+          
+          results.patient_info = {
+              name: normalizedData.name || 'N/A',
+              age: patientAge,
+              gender: patientGender
+          };
+          
+          const analyzers = {
+            // DIABETES & METABOLIC
+            hba1c: (value) => analyzeHbA1c(value),
+            fasting_glucose: (value) => analyzeFastingGlucose(value),
+            estimated_average_glucose: (value) => {
+              if (value < 120) {
+                return { status: 'Normal', color: 'green', risk: 'Healthy glucose metabolism' };
+              } else if (value >= 120 && value <= 140) {
+                return { status: 'Prediabetic', color: 'orange', risk: 'Impaired glucose metabolism', alert: 'Dietary changes recommended' };
+              } else {
+                return { status: 'Diabetic', color: 'red', risk: 'Diabetes indicated', alert: 'Medical treatment required' };
+              }
+            },
+            
+            // LIPID PROFILE
+            total_cholesterol: (value) => analyzeCholesterol(value),
+            ldl_cholesterol: (value) => analyzeLDL(value),
+            hdl_cholesterol: (value) => analyzeHDL(value, results.patient_info.gender),
+            triglycerides: (value) => analyzeTriglycerides(value),
+            
+            // HEMATOLOGY
+            hemoglobin: (value) => analyzeHemoglobin(value, results.patient_info.gender),
+            wbc_count: (value) => analyzeWBC(value),
+            platelet_count: (value) => analyzePlateletCount(value),
+            
+            // LIVER FUNCTION
+            alt_sgpt: (value) => analyzeALT(value, results.patient_info.gender),
+            ast_sgot: (value) => analyzeAST(value, results.patient_info.gender),
+            bilirubin: (value) => analyzeBilirubin(value),
+            
+            // INFECTIOUS DISEASES
+            typhidot_igg: (result) => {
+                if (result.toLowerCase().includes('positive')) {
+                    return { status: 'Positive', color: 'red', risk: 'Previous Typhoid infection or re-infection', alert: 'Consult doctor for current fever diagnosis' };
+                }
+                return { status: 'Negative', color: 'green', risk: 'No previous Typhoid infection' };
+            },
+            typhidot_igm: (result) => {
+                if (result.toLowerCase().includes('positive')) {
+                    return { status: 'Positive', color: 'red', risk: 'Acute Typhoid Fever', alert: 'Immediate medical consultation required' };
+                }
+                return { status: 'Negative', color: 'green', risk: 'No acute Typhoid infection' };
+            },
+            hepatitis_b: (result) => analyzeHepatitisB(result),
+            hepatitis_c: (result) => analyzeHepatitisC(result),
+            
+            // SPECIAL CASES
+            mch: (value) => {
+                if (value > 32) {
+                    return { status: 'High', color: 'red', risk: 'Increased risk of macrocytic anemia', alert: 'Further investigation may be required' };
+                }
+                if (value < 27) {
+                    return { status: 'Low', color: 'red', risk: 'Increased risk of microcytic anemia', alert: 'Further investigation may be required' };
+                }
+                return { status: 'Normal', color: 'green', risk: 'Healthy MCH' };
+            },
+            mchc: (value) => {
+                 if (value > 35) {
+                    return { status: 'High', color: 'red', risk: 'Increased risk of spherocytosis', alert: 'Further investigation may be required' };
+                }
+                if (value < 30) {
+                    return { status: 'Low', color: 'red', risk: 'Increased risk of hypochromic anemia', alert: 'Further investigation may be required' };
+                }
+                return { status: 'Normal', color: 'green', risk: 'Healthy MCHC' };
+            },
+          };
+          
+          for (const [parameter, value] of Object.entries(normalizedData)) {
+            if (analyzers[parameter] && value !== null && value !== undefined) {
+              const processedValue = (typeof value === 'string' && !isNaN(parseFloat(value))) ? parseFloat(value) : value;
+              
+              const analysis = analyzers[parameter](processedValue);
+              
+              if (analysis) {
+                const parameterName = parameter.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                
+                results.medical_analysis[parameter] = {
+                  parameter: parameterName,
+                  value: processedValue,
+                  unit: getParameterUnit(parameter),
+                  ...analysis
+                };
+                
+                if (analysis.color !== 'green') {
+                  results.problematic_parameters.push(parameter);
+                  
+                  const ayurvedic = getAyurvedicRecommendation(parameter);
+                  if (ayurvedic) {
+                    results.ayurvedic_recommendations[parameter] = ayurvedic;
+                  }
+                  
+                  categorizeDisease(parameter, results.disease_categories);
+                }
+              }
+            }
+          }
+          
+          return results;
+        }
+
+        // ========== HELPER FUNCTIONS (Updated) ==========
+        function getParameterUnit(parameter) {
+          const units = {
+            hba1c: '%',
+            fasting_glucose: 'mg/dL',
+            estimated_average_glucose: 'mg/dL',
+            total_cholesterol: 'mg/dL',
+            ldl_cholesterol: 'mg/dL',
+            hdl_cholesterol: 'mg/dL',
+            triglycerides: 'mg/dL',
+            hemoglobin: 'g/dL',
+            wbc_count: 'x10³/µL',
+            platelet_count: 'x10³/µL',
+            alt_sgpt: 'U/L',
+            ast_sgot: 'U/L',
+            bilirubin: 'mg/dL',
+            creatinine: 'mg/dL',
+            bun: 'mg/dL',
+            uric_acid: 'mg/dL',
+            tsh: 'µIU/mL',
+            t3: 'ng/dL',
+            t4: 'µg/dL',
+            esr: 'mm/hr',
+            crp: 'mg/L',
+            vitamin_d: 'ng/mL',
+            vitamin_b12: 'pg/mL',
+            folate: 'ng/mL',
+            iron: 'µg/dL',
+            ferritin: 'ng/mL',
+            troponin: 'ng/mL',
+            ck_mb: 'ng/mL',
+            psa: 'ng/mL',
+            cea: 'ng/mL',
+            afp: 'ng/mL',
+            malaria_rapid_test: 'Result',
+            typhoid_test: 'Result',
+            widal_test: 'Titer',
+            dengue_ns1: 'Result',
+            dengue_igm: 'Result',
+            chikungunya_igm: 'Result',
+            hepatitis_b: 'Result',
+            hepatitis_c: 'Result',
+            hiv_test: 'Result',
+            tuberculosis: 'Result',
+            procalcitonin: 'ng/mL',
+            ana_titer: 'Titer',
+            rheumatoid_factor: 'IU/mL',
+            testosterone: 'ng/dL',
+            cortisol: 'µg/dL',
+            pt_inr: 'INR',
+            ptt: 'seconds',
+            d_dimer: 'µg/mL',
+            typhidot_igg: 'Result',
+            typhidot_igm: 'Result',
+            mch: 'pg',
+            mchc: 'g/dL'
+          };
+          return units[parameter] || '';
+        }
+
+        function categorizeDisease(parameter, categories) {
+          const categoryMap = {
+            diabetes: ['hba1c', 'fasting_glucose'],
+            cardiovascular: ['total_cholesterol', 'ldl_cholesterol', 'hdl_cholesterol', 'triglycerides'],
+            liver: ['alt_sgpt', 'ast_sgot', 'bilirubin', 'hepatitis_b', 'hepatitis_c'],
+            kidney: ['creatinine', 'bun', 'uric_acid'],
+            blood_disorders: ['hemoglobin', 'wbc_count', 'platelet_count', 'pt_inr', 'ptt', 'd_dimer', 'mch', 'mchc'],
+            thyroid: ['tsh', 't3', 't4'],
+            inflammatory: ['esr', 'crp', 'procalcitonin'],
+            nutritional: ['vitamin_d', 'vitamin_b12', 'folate', 'iron', 'ferritin'],
+            cardiac: ['troponin', 'ck_mb'],
+            cancer_markers: ['psa', 'cea', 'afp'],
+            infectious_diseases: ['malaria_rapid_test', 'typhidot_igg', 'typhidot_igm', 'typhoid_test', 'widal_test', 'dengue_ns1', 'dengue_igm', 'chikungunya_igm', 'tuberculosis', 'procalcitonin'],
+            viral_infections: ['hepatitis_b', 'hepatitis_c', 'hiv_test'],
+            autoimmune: ['ana_titer', 'rheumatoid_factor'],
+            hormonal: ['testosterone', 'cortisol'],
+            coagulation: ['pt_inr', 'ptt', 'd_dimer']
+          };
+          
+          for (const [category, parameters] of Object.entries(categoryMap)) {
+            if (parameters.includes(parameter)) {
+              categories[category].push(parameter);
+            }
+          }
+        }
+        
+        async function updateAnalysisPage(data) {
+            medicalResults.innerHTML = '';
+            ayurvedicResults.innerHTML = '';
+            
+            console.log('Data received in updateAnalysisPage:', data);
+
+            const mergedData = (Array.isArray(data) && data.length > 0 && typeof data[0] === 'object') 
+                ? data.reduce((acc, curr) => ({ ...acc, ...curr }), {}) 
+                : (typeof data === 'object' && data !== null ? data : {});
+
+            if (Object.keys(mergedData).length === 0) {
+                medicalResults.innerHTML = '<div class="placeholder-text">No analytical data found in the report.</div>';
+                ayurvedicResults.innerHTML = '<div class="placeholder-text">Ayurvedic recommendations will appear here after analysis.</div>';
+                return;
+            }
+
+            const analysisResults = analyzeCompleteBloodReport(mergedData);
+            const patientInfo = analysisResults.patient_info;
+
+            // Display patient info from the analysis results
+            if (patientInfo && patientInfo.name !== 'N/A') {
+                patientNameSpan.textContent = patientInfo.name;
+                patientAgeSpan.textContent = patientInfo.age;
+                patientGenderSpan.textContent = patientInfo.gender;
+                patientInfoDisplay.style.display = 'block';
+            } else {
+                patientInfoDisplay.style.display = 'none';
+            }
+
+            // Initialize arrays to separate results
+            const abnormalResults = [];
+            const normalResults = [];
+
+            // Render Medical Analysis
+            if (Object.keys(analysisResults.medical_analysis).length > 0) {
+                for (const param in analysisResults.medical_analysis) {
+                    const result = analysisResults.medical_analysis[param];
+                    const isAbnormal = result.color !== 'green';
+
+                    const paramCard = `
+                        <div class="parameter-card" style="border-left-color: ${isAbnormal ? (result.color === 'red' ? '#f44336' : '#ff9800') : '#4caf50'}">
+                            <div class="parameter-title">
+                                <i class="fas fa-square-full" style="color:${isAbnormal ? (result.color === 'red' ? '#f44336' : '#ff9800') : '#4caf50'}"></i> ${result.parameter}
+                                <span class="status-badge status-${result.color}">${result.status.toUpperCase()}</span>
+                            </div>
+                            <p class="analysis-detail">Value: ${result.value} ${result.unit || ''}</p>
+                            <p class="analysis-detail">Your Status: Your value is in the ${result.status.toLowerCase()} range.</p>
+                            <p class="analysis-detail">Risk Level: ${result.risk || 'No specific risk mentioned.'}</p>
+                            ${result.alert ? `<p class="analysis-detail" style="color:#f44336; font-weight: bold;">?? ALERT: ${result.alert}</p>` : ''}
+                        </div>
+                    `;
+
+                    if (isAbnormal) {
+                        abnormalResults.push(paramCard);
+                    } else {
+                        normalResults.push(paramCard);
+                    }
+                }
+
+                if (abnormalResults.length > 0) {
+                    // Display a general alert for abnormal results
+                    medicalResults.innerHTML += '<div class="analysis-section-title" style="color: #f44336;"><i class="fas fa-exclamation-triangle"></i> Abnormal Results Found</div>';
+                    medicalResults.innerHTML += abnormalResults.join('');
+                }
+
+                if (normalResults.length > 0) {
+                    if (abnormalResults.length === 0) {
+                         medicalResults.innerHTML = '<div class="placeholder-text">All key parameters are within the normal range. Great job!</div>';
+                    } 
+                    // OPTIONAL: To show all results, abnormal and normal, uncomment the lines below:
+                    /*
+                    else {
+                        medicalResults.innerHTML += '<div class="analysis-section-title" style="font-size: 1.2rem; margin-top: 20px;"><i class="fas fa-check-circle"></i> Normal Results (For Reference)</div>';
+                        medicalResults.innerHTML += normalResults.join('');
+                    }
+                    */
+                }
+
+                if (abnormalResults.length === 0 && normalResults.length === 0) {
+                    medicalResults.innerHTML = '<div class="placeholder-text">No analytical data found in the report.</div>';
+                }
+            } else {
+                medicalResults.innerHTML = '<div class="placeholder-text">No analytical data found in the report.</div>';
+            }
+
+            // Render Ayurvedic Recommendations
+            if (Object.keys(analysisResults.ayurvedic_recommendations).length > 0) {
+                for (const param in analysisResults.ayurvedic_recommendations) {
+                    const recs = analysisResults.ayurvedic_recommendations[param];
+                    const paramName = param.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                    const ayurvedicCard = `
+                        <div class="analysis-section-title">
+                            <i class="fas fa-herbal"></i> RECOMMENDATIONS FOR ${paramName.toUpperCase()}
+                        </div>
+                        <p class="analysis-detail"><b>Ayurvedic View:</b> ${recs.view}</p>
+                        <h4 class="analysis-section-title" style="font-size: 1.2rem; margin-top: 15px;"><i class="fas fa-leaf"></i> DIETARY GUIDANCE</h4>
+                        <ul class="ayurvedic-list">
+                            ${recs.avoid.map(item => `<li><i class="fas fa-times-circle" style="color: #F44336;"></i> <span style="font-weight: bold;">Avoid:</span> ${item}</li>`).join('')}
+                            ${recs.include.map(item => `<li><i class="fas fa-check-circle" style="color: #4CAF50;"></i> <span style="font-weight: bold;">Include:</span> ${item}</li>`).join('')}
+                        </ul>
+                        <h4 class="analysis-section-title" style="font-size: 1.2rem; margin-top: 15px;"><i class="fas fa-universal-access"></i> LIFESTYLE MODIFICATIONS</h4>
+                        <ul class="ayurvedic-list">
+                            ${recs.yoga.map(item => `<li><i class="fas fa-om"></i> <span style="font-weight: bold;">Yoga:</span> ${item}</li>`).join('')}
+                            ${recs.pranayama.map(item => `<li><i class="fas fa-wind"></i> <span style="font-weight: bold;">Pranayama:</span> ${item}</li>`).join('')}
+                            ${recs.exercise.map(item => `<li><i class="fas fa-walking"></i> <span style="font-weight: bold;">Exercise:</span> ${item}</li>`).join('')}
+                        </ul>
+                    `;
+                    ayurvedicResults.innerHTML += ayurvedicCard;
+                }
+            } else {
+                ayurvedicResults.innerHTML = '<div class="placeholder-text">Based on your report, all key values are within ranges that require no immediate Ayurvedic lifestyle corrections.</div>';
+            }
+        }
+    </script>
+</body>
+</html>

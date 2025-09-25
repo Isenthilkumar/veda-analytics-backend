@@ -3,108 +3,132 @@ const multer = require('multer');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const fs = require('fs');
 const cors = require('cors');
+const path = require('path');
 
-// IMPORTANT: Your Gemini API Key is loaded securely from Vercel Environment Variables
+// Load API Key securely from Vercel Environment Variables
 const API_KEY = process.env.GEMINI_API_KEY;
 
 const app = express();
-
-// Initialize GoogleGenerativeAI with the secured API Key
 const genAI = new GoogleGenerativeAI(API_KEY);
 
-// FIX: Configure Multer to use the Vercel-safe /tmp directory.
-// Vercel serverless functions can only write to /tmp.
-const upload = multer({ dest: '/tmp/' });
+// Use a secure file-system-safe method for creating temporary storage
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, '/tmp/'); // Vercel's only writable directory
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
 
-// Enable CORS for all requests.
+const upload = multer({ storage: storage });
+
+// Enable CORS
 app.use(cors({
-  origin: '*', // Allow all origins to access the server
+  origin: '*',
 }));
 app.use(express.json());
 
-// Helper function to convert file to a base64-encoded object
-function fileToGenerativePart(path, mimeType) {
-  return {
-    inlineData: {
-      data: Buffer.from(fs.readFileSync(path)).toString("base64"),
-      mimeType
-    },
-  };
+// Helper to prepare file for Gemini API
+function fileToGenerativePart(filePath, mimeType) {
+  try {
+    return {
+      inlineData: {
+        data: Buffer.from(fs.readFileSync(filePath)).toString("base64"),
+        mimeType
+      },
+    };
+  } catch (error) {
+    console.error(`Error reading file at ${filePath}:`, error);
+    throw new Error('Could not read the uploaded file.');
+  }
 }
 
 // Main analysis endpoint
 app.post('/analyze', upload.single('report'), async (req, res) => {
+  if (!API_KEY) {
+      return res.status(500).json({ error: 'Server configuration error: Gemini API Key not found.' });
+  }
+  
+  if (!req.file) {
+    return res.status(400).json({ error: 'No file uploaded.' });
+  }
+
+  const { mimetype, path: tempPath } = req.file;
+
   try {
-    if (!API_KEY) {
-        // Essential check for the API key in the Vercel environment
-        return res.status(500).json({ error: 'Server configuration error: Gemini API Key not found. Check Vercel Environment Variables.' });
-    }
-    
-    if (!req.file) {
-      return res.status(400).send('No file uploaded.');
-    }
-
-    const { originalname, mimetype, path: tempPath } = req.file;
-
-    // FIX: Changed model to the stable and supported 'gemini-2.5-pro'
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" });
 
-    // UPDATED PROMPT: Extract ALL key metrics
+    // Updated and more specific prompt with additional fields
     const prompt = `
-      Analyze this blood report thoroughly. Extract ALL key medical parameters: HbA1c, Total Cholesterol, HDL Cholesterol, Triglycerides, Uric Acid, Creatinine, Hemoglobin, and TSH. If any parameter is not found, use null.
+      Analyze the attached blood report. Extract the patient's name, age, and gender.
+      Then, extract the values for all available tests. If a value is a string (e.g., 'Positive', 'Negative'), keep it as a string. If it's a number, convert it to a float. If a value is not found, use null.
       
-      Return the data as a single JSON object where each parameter name is a key and its value is the measured value as a number. Only return the final data values, not the units, as the frontend handles the units and ranges.
+      Extract the following fields:
+      - Patient's Name (key: "name")
+      - Age/Sex (key: "age_sex")
+      - Typhidot IgG (key: "typhidot_igg")
+      - Typhidot IgM (key: "typhidot_igm")
+      - Bilirubin Total (key: "bilirubin_total")
+      - SGPT (ALT) (key: "sgpt_alt")
+      - SGOT (AST) (key: "sgot_ast")
+      - HBsAg (key: "hbsag")
+      - Anti HCV (key: "anti_hcv")
+      - Haemoglobin (key: "haemoglobin")
+      - WBC (TLC) (key: "wbc_tlc")
+      - Total RBC (key: "total_rbc")
+      - HCT (PVC) (key: "hct_pvc")
+      - MCV (key: "mcv")
+      - MCH (key: "mch")
+      - MCHC (key: "mchc")
+      - Platelets (key: "platelets")
+      - HbA1c (key: "hba1c")
+      - Estimated Average Glucose (key: "estimated_average_glucose")
+      - Fasting Glucose (key: "fasting_glucose")
+      - Total Cholesterol (key: "total_cholesterol")
+      - HDL Cholesterol (key: "hdl_cholesterol")
+      - LDL Cholesterol (key: "ldl_cholesterol")
+      - Triglycerides (key: "triglycerides")
+      - Creatinine (key: "creatinine")
+      - BUN (key: "bun")
+      - TSH (key: "tsh")
+      - Free T3 (key: "free_t3")
+      - Free T4 (key: "free_t4")
+      - Vitamin D (key: "vitamin_d")
+      - Vitamin B12 (key: "vitamin_b12")
+      - Iron (key: "iron")
+      - Ferritin (key: "ferritin")
+      - CRP (key: "crp")
+      - ESR (key: "esr")
 
-      Example of desired JSON output:
-      {
-        "HbA1c": 6.2,
-        "Total Cholesterol": 253,
-        "HDL Cholesterol": 47,
-        "Triglycerides": 344,
-        "Uric Acid": 7.6,
-        "Creatinine": 0.9,
-        "Hemoglobin": 14.5,
-        "TSH": null
-      }
+      Return the data as a single JSON object. Do not include any other text or formatting outside of the JSON block.
     `;
 
-    // Prepare the file for Gemini
     const imagePart = fileToGenerativePart(tempPath, mimetype);
+    const result = await model.generateContent({
+        contents: [{ parts: [{ text: prompt }, imagePart] }],
+        generationConfig: {
+            responseMimeType: "application/json",
+        },
+    });
 
-    const result = await model.generateContent([prompt, imagePart]);
-    const response = await result.response;
+    const responseText = result.response.candidates[0].content.parts[0].text;
     
-    // Clean up the temporary file immediately after use.
+    // Clean up the temporary file
     fs.unlinkSync(tempPath);
 
-    // FIX: Must CALL response.text() to get the string content.
-    const responseText = response.text(); 
-    
-    // Attempt to extract text between ```json and ``` for robust parsing
-    const jsonMatch = responseText.match(/```json\s*([\s\S]*?)\s*```/);
-    const jsonText = jsonMatch ? jsonMatch[1].trim() : responseText.trim();
-
-    // Attempt to parse the JSON output from Gemini
-    let parsedData;
-    try {
-      parsedData = JSON.parse(jsonText);
-    } catch (e) {
-      console.error("Failed to parse JSON from Gemini:", jsonText);
-      // Return a 500 error but include the raw response text for debugging
-      return res.status(500).json({ 
-        error: "Could not parse report data. Gemini may not have returned valid JSON.", 
-        rawResponse: jsonText 
-      });
-    }
-
+    const parsedData = JSON.parse(responseText);
     res.json(parsedData);
 
   } catch (error) {
     console.error('API Error:', error);
-    // Include the error details in the response for better debugging
-    res.status(500).json({ error: 'Failed to process the request.', details: error.message });
+    fs.unlinkSync(tempPath); // Ensure file is deleted even on error
+    res.status(500).json({ 
+        error: 'Failed to process the request due to a server error.', 
+        details: error.message 
+    });
   }
 });
 
-// FIX: Export the app for Vercel to use as the serverless function handler.
 module.exports = app;
