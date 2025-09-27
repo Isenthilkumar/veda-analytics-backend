@@ -47,6 +47,8 @@ function fileToGenerativePart(filePath, mimeType) {
 
 // Main analysis endpoint
 app.post('/analyze', upload.single('report'), async (req, res) => {
+  let tempPath = null; // Declare tempPath outside try/catch for cleanup
+
   if (!API_KEY) {
       return res.status(500).json({ error: 'Server configuration error: Gemini API Key not found.' });
   }
@@ -55,27 +57,21 @@ app.post('/analyze', upload.single('report'), async (req, res) => {
     return res.status(400).json({ error: 'No file uploaded.' });
   }
 
-  const { mimetype, path: tempPath } = req.file;
+  tempPath = req.file.path; // Assign tempPath here
 
   try {
+    const { mimetype } = req.file;
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" });
 
-    // The core of the fix is here. We are now directly instructing the model
-    // to output a JSON object, which is more reliable than the deprecated parameter.
+    // --- CRITICAL FIX: Expanded, normalized list for accurate FE parsing ---
     const prompt = `
-      Analyze the attached blood report. Extract the patient's name, age, and gender.
-      Then, extract the values for all available tests. If a value is a string (e.g., 'Positive', 'Negative'), keep it as a string. If it's a number, convert it to a float. If a value is not found, use null.
+      Analyze the attached blood report. Extract the patient details and the measured results for ALL medical tests listed below. 
+      If a value is a string (e.g., 'Positive', 'Negative'), keep it as a string. If it's a number, convert it to a float. If a value is not found, use null.
       
-      Return a single JSON object with the following fields:
+      Return a single JSON object with the following mandatory keys. Ensure the keys and casing match exactly:
+
       - "name"
       - "age_sex"
-      - "typhidot_igg"
-      - "typhidot_igm"
-      - "bilirubin_total"
-      - "sgpt_alt"
-      - "sgot_ast"
-      - "hbsag"
-      - "anti_hcv"
       - "haemoglobin"
       - "wbc_tlc"
       - "total_rbc"
@@ -84,25 +80,29 @@ app.post('/analyze', upload.single('report'), async (req, res) => {
       - "mch"
       - "mchc"
       - "platelets"
-      - "hba1c"
-      - "estimated_average_glucose"
-      - "fasting_glucose"
-      - "total_cholesterol"
-      - "hdl_cholesterol"
-      - "ldl_cholesterol"
-      - "triglycerides"
+      - "bilirubin_total"
+      - "sgpt_alt"
+      - "sgot_ast"
+      - "typhidot_igg"
+      - "typhidot_igm"
+      - "hbsag"
+      - "anti_hcv"
       - "creatinine"
       - "bun"
+      - "uric_acid"
       - "tsh"
+      - "crp"
+      - "esr"
       - "free_t3"
       - "free_t4"
       - "vitamin_d"
       - "vitamin_b12"
       - "iron"
       - "ferritin"
-      - "crp"
-      - "esr"
-      - "procalcitonin"
+      - "total_cholesterol"
+      - "hdl_cholesterol"
+      - "ldl_cholesterol"
+      - "triglycerides"
       - "ana_titer"
       - "rheumatoid_factor"
       - "testosterone"
@@ -126,18 +126,15 @@ app.post('/analyze', upload.single('report'), async (req, res) => {
     `;
 
     const imagePart = fileToGenerativePart(tempPath, mimetype);
+    
+    // FIX: Removed the unsupported responseMimeType parameter
     const result = await model.generateContent({
         contents: [{ parts: [{ text: prompt }, imagePart] }],
-        // The error was here, removed the responseMimeType parameter
     });
 
     const responseText = result.response.candidates[0].content.parts[0].text;
     
-    // Clean up the temporary file
-    fs.unlinkSync(tempPath);
-    
     // Attempt to parse the JSON output from Gemini.
-    // The Gemini model is now more reliable at returning a clean JSON object based on the prompt alone.
     let parsedData;
     try {
       parsedData = JSON.parse(responseText);
@@ -150,13 +147,13 @@ app.post('/analyze', upload.single('report'), async (req, res) => {
               parsedData = JSON.parse(jsonMatch[1].trim());
           } catch (e2) {
               return res.status(500).json({
-                  error: "Could not parse report data. Gemini may not have returned valid JSON.",
+                  error: "Could not parse report data. Gemini may not have returned valid JSON (Fallback Failed).",
                   rawResponse: responseText
               });
           }
       } else {
           return res.status(500).json({
-              error: "Could not parse report data. Gemini may not have returned valid JSON.",
+              error: "Could not parse report data. Gemini may not have returned valid JSON (No JSON Block Found).",
               rawResponse: responseText
           });
       }
@@ -166,13 +163,15 @@ app.post('/analyze', upload.single('report'), async (req, res) => {
 
   } catch (error) {
     console.error('API Error:', error);
-    if (tempPath && fs.existsSync(tempPath)) {
-        fs.unlinkSync(tempPath); // Ensure file is deleted even on error
-    }
     res.status(500).json({ 
         error: 'Failed to process the request due to a server error.', 
         details: error.message 
     });
+  } finally {
+    // Ensure file is deleted even on success or failure
+    if (tempPath && fs.existsSync(tempPath)) {
+        fs.unlinkSync(tempPath); 
+    }
   }
 });
 

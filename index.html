@@ -490,7 +490,72 @@
             color: #555;
             margin-bottom: 5px;
         }
-
+        
+        /* --- NEW STYLES FOR SUPPLEMENT PROTOCOL CARDS (Mobile-Friendly) --- */
+        #protocolCardsContainer {
+            display: flex;
+            flex-direction: column; /* This forces the cards to stack vertically on small screens */
+            gap: 15px; /* Spacing between individual product cards */
+            margin-bottom: 25px; /* Space before the footer/disclaimer */
+        }
+        .product-card {
+            background: #f8f8f8;
+            border-left: 5px solid;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            width: 100%;
+            transition: all 0.2s ease;
+        }
+        .card-header-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .category-badge {
+            font-size: 0.8em;
+            font-weight: 700;
+            padding: 4px 8px;
+            border-radius: 6px;
+            color: white;
+            /* Color coding will be applied inline by JavaScript for simplicity */
+        }
+        .product-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #2E7D75;
+            margin: 5px 0 10px 0;
+        }
+        /* CRITICAL WARNING Banners */
+        .critical-warning-banner {
+            background-color: #F8BBD0; /* Soft Pink background */
+            color: #880E4F; /* Deep Red text for contrast */
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        .dosage-line {
+            display: flex;
+            align-items: flex-start;
+            font-size: 0.9em;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        .dosage-line i {
+            margin-right: 8px;
+            color: #4DB6AC;
+            min-width: 18px;
+            text-align: center;
+        }
+        .rationale-text {
+            font-size: 0.85em;
+            color: #666;
+            margin-top: 10px;
+            padding-top: 8px;
+            border-top: 1px dashed #eee;
+        }
 
         @media (max-width: 480px) {
             .page { padding: 10px; }
@@ -610,14 +675,18 @@
                     <i class="fas fa-seedling"></i> Traditional Healing
                 </div>
                 <div id="ayurvedicResults">
-                    <div class="placeholder-text">Ayurvedic recommendations will appear here after analysis.</div>
+                    <div id="protocolCardsContainer">
+                        <div class="placeholder-text">Ayurvedic recommendations will appear here after analysis.</div>
+                    </div>
+                    <div id="ayurvedicFooter" style="margin-top: 20px;"></div>
                 </div>
             </div>
         </div>
     </div>
     
+    <script src="supplementData.js"></script> 
     <script>
-        // ? CORRECTED API URL: Points to your live Vercel backend's /analyze endpoint.
+        // ? IMPORTANT: RESTORED API URL
         const API_URL = 'https://veda-analytics-backend.vercel.app/analyze';
         
         const homePage = document.getElementById('homePage');
@@ -692,10 +761,8 @@
             analyzeBtn.disabled = true;
             
             try {
-                // This is the correct, non-hardcoded API call.
                 const rawData = await callGeminiApi(file);
                 
-                // 1. Ensure rawData is an object for merging
                 const mergedData = (Array.isArray(rawData) && rawData.length > 0 && typeof rawData[0] === 'object') 
                     ? rawData.reduce((acc, curr) => ({ ...acc, ...curr }), {}) 
                     : (typeof rawData === 'object' && rawData !== null ? rawData : {});
@@ -703,8 +770,6 @@
                 console.log('--- BACKEND API RAW DATA ---', rawData);
                 console.log('--- MERGED DATA FOR ANALYSIS ---', mergedData);
 
-                // This is where we use the actual data from the report.
-                // All mock data has been removed. The values will come directly from the API response.
                 currentReportData = mergedData;
 
                 uploadBtn.innerHTML = '<i class="fas fa-check"></i> Report Ready';
@@ -776,6 +841,17 @@
           }
         }
 
+        // --- ADDED: Estimated Average Glucose logic (from old file) ---
+        function analyzeEstimatedAverageGlucose(value) {
+              if (value < 120) {
+                return { status: 'Normal', color: 'green', risk: 'Healthy glucose metabolism' };
+              } else if (value >= 120 && value <= 140) {
+                return { status: 'Prediabetic', color: 'orange', risk: 'Impaired glucose metabolism', alert: 'Dietary changes recommended' };
+              } else {
+                return { status: 'Diabetic', color: 'red', risk: 'Diabetes indicated', alert: 'Medical treatment required' };
+              }
+        }
+        
         // ========== LIPID PROFILE ==========
         function analyzeCholesterol(value) {
           if (value < 200) {
@@ -857,7 +933,38 @@
             return { status: 'High (Thrombocytosis)', color: 'orange', risk: 'Blood clot risk', alert: 'Evaluate for clotting disorders' };
           }
         }
+        
+        // --- ADDED: MCH, MCHC, MCV (from old file) ---
+        function analyzeMCH(value) {
+            if (value > 32) {
+                return { status: 'High', color: 'red', risk: 'Increased risk of macrocytic anemia', alert: 'Further investigation may be required' };
+            }
+            if (value < 27) {
+                return { status: 'Low', color: 'red', risk: 'Increased risk of microcytic anemia', alert: 'Further investigation may be required' };
+            }
+            return { status: 'Normal', color: 'green', risk: 'Healthy MCH' };
+        }
 
+        function analyzeMCHC(value) {
+             if (value > 35) {
+                return { status: 'High', color: 'red', risk: 'Increased risk of spherocytosis', alert: 'Further investigation may be required' };
+            }
+            if (value < 30) {
+                return { status: 'Low', color: 'red', risk: 'Increased risk of hypochromic anemia', alert: 'Further investigation may be required' };
+            }
+            return { status: 'Normal', color: 'green', risk: 'Healthy MCHC' };
+        }
+
+        function analyzeMCV(value) {
+            if (value > 96) {
+                return { status: 'High', color: 'red', risk: 'Macrocytic anemia', alert: 'Further investigation may be required' };
+            }
+            if (value < 80) {
+                return { status: 'Low', color: 'red', risk: 'Microcytic anemia', alert: 'Further investigation may be required' };
+            }
+            return { status: 'Normal', color: 'green', risk: 'Healthy MCV' };
+        }
+        
         // ========== LIVER FUNCTION ==========
         function analyzeALT(value, gender) {
           const threshold = gender === 'male' ? 40 : 35;
@@ -874,7 +981,9 @@
           const threshold = gender === 'male' ? 40 : 32;
           if (value <= threshold) {
             return { status: 'Normal', color: 'green', risk: 'Healthy liver function' };
-          } else if (value > threshold && value <= threshold * 2) {
+          } else if (gender === 'male' && value > 40) { 
+            return { status: 'Elevated', color: 'orange', risk: 'Liver or muscle damage', alert: 'Monitor liver function, avoid alcohol' };
+          } else if (value > threshold && value <= threshold * 2) { 
             return { status: 'Elevated', color: 'orange', risk: 'Liver or muscle damage', alert: 'Monitor liver function, avoid alcohol' };
           } else {
             return { status: 'High', color: 'red', risk: 'Significant liver damage', alert: 'Immediate hepatology consultation' };
@@ -891,7 +1000,7 @@
           }
         }
 
-        // ========== KIDNEY FUNCTION ==========
+        // ========== KIDNEY FUNCTION (Restored) ==========
         function analyzeCreatinine(value, gender) {
           const ranges = gender === 'male' ? { normal: 1.3 } : { normal: 1.1 };
           if (value <= ranges.normal) {
@@ -924,7 +1033,7 @@
           }
         }
 
-        // ========== THYROID FUNCTION ==========
+        // ========== THYROID FUNCTION (Restored) ==========
         function analyzeTSH(value) {
           if (value >= 0.3 && value <= 5.5) {
             return { status: 'Normal', color: 'green', risk: 'Normal thyroid function' };
@@ -957,7 +1066,7 @@
           }
         }
 
-        // ========== INFLAMMATORY MARKERS ==========
+        // ========== INFLAMMATORY MARKERS (Restored) ==========
         function analyzeESR(value, gender) {
           const threshold = gender === 'male' ? 15 : 20;
           if (value <= threshold) {
@@ -979,7 +1088,7 @@
           }
         }
 
-        // ========== VITAMINS & MINERALS ==========
+        // ========== VITAMINS & MINERALS (Restored) ==========
         function analyzeVitaminD(value) {
           if (value >= 30) {
             return { status: 'Sufficient', color: 'green', risk: 'Adequate bone health' };
@@ -1010,7 +1119,7 @@
           }
         }
 
-        // ========== IRON STUDIES ==========
+        // ========== IRON STUDIES (Restored) ==========
         function analyzeIron(value, gender) {
           const ranges = gender === 'male' ? { min: 80, max: 180 } : { min: 60, max: 170 };
           if (value >= ranges.min && value <= ranges.max) {
@@ -1033,7 +1142,7 @@
           }
         }
 
-        // ========== CARDIAC MARKERS ==========
+        // ========== CARDIAC MARKERS (Restored) ==========
         function analyzeTroponin(value) {
           if (value < 0.04) {
             return { status: 'Normal', color: 'green', risk: 'No heart damage' };
@@ -1054,7 +1163,7 @@
           }
         }
 
-        // ========== TUMOR MARKERS ==========
+        // ========== TUMOR MARKERS (Restored) ==========
         function analyzePSA(value, age) {
           let threshold = 4.0;
           if (age < 50) threshold = 2.5;
@@ -1090,7 +1199,7 @@
           }
         }
 
-        // ========== INFECTIOUS DISEASE MARKERS ==========
+        // ========== INFECTIOUS DISEASE MARKERS (Restored and Fixed) ==========
         function analyzeMalariaRapidTest(result) {
           if (result === 'negative' || result === 'non-reactive') {
             return { status: 'Negative', color: 'green', risk: 'No malaria detected' };
@@ -1142,19 +1251,23 @@
         }
 
         function analyzeHepatitisB(result) {
-          if (result === 'negative' || result === 'non-reactive') {
+          const res = result.toString().toLowerCase();
+          if (res.includes('negative') || res.includes('non-reactive')) {
             return { status: 'Negative', color: 'green', risk: 'No Hepatitis B infection' };
-          } else {
+          } else if (res.includes('positive') || res.includes('reactive')) {
             return { status: 'Positive', color: 'red', risk: 'Hepatitis B infection', alert: 'Hepatology consultation, antiviral treatment consideration' };
           }
+          return { status: 'Unknown', color: 'orange', risk: 'Indeterminate result', alert: 'Retest for confirmation' };
         }
 
         function analyzeHepatitisC(result) {
-          if (result === 'negative' || result === 'non-reactive') {
+          const res = result.toString().toLowerCase();
+          if (res.includes('negative') || res.includes('non-reactive')) {
             return { status: 'Negative', color: 'green', risk: 'No Hepatitis C infection' };
-          } else {
+          } else if (res.includes('positive') || res.includes('reactive')) {
             return { status: 'Positive', color: 'red', risk: 'Hepatitis C infection', alert: 'Immediate hepatology referral, antiviral treatment' };
           }
+          return { status: 'Unknown', color: 'orange', risk: 'Indeterminate result', alert: 'Retest for confirmation' };
         }
 
         function analyzeHIV(result) {
@@ -1185,7 +1298,7 @@
           }
         }
 
-        // ========== AUTOIMMUNE CONDITIONS ==========
+        // ========== AUTOIMMUNE CONDITIONS (Restored) ==========
         function analyzeANA(titer) {
           if (titer < 80) {
             return { status: 'Negative', color: 'green', risk: 'No autoimmune activity detected' };
@@ -1206,7 +1319,7 @@
           }
         }
 
-        // ========== HORMONAL CONDITIONS ==========
+        // ========== HORMONAL CONDITIONS (Restored) ==========
         function analyzeTestosterone(value, gender) {
           if (gender === 'male') {
             if (value >= 300 && value <= 1000) {
@@ -1235,7 +1348,7 @@
           }
         }
 
-        // ========== COAGULATION DISORDERS ==========
+        // ========== COAGULATION DISORDERS (Restored) ==========
         function analyzePT_INR(value) {
           if (value >= 0.8 && value <= 1.1) {
             return { status: 'Normal', color: 'green', risk: 'Normal blood clotting' };
@@ -1266,7 +1379,7 @@
           }
         }
 
-        // ========== AYURVEDIC RECOMMENDATIONS DATABASE ==========
+        // ========== AYURVEDIC RECOMMENDATIONS DATABASE (Restored) ==========
         function getAyurvedicRecommendation(parameter) {
           const recommendations = {
             // DIABETES & METABOLIC
@@ -1418,7 +1531,7 @@
               medicines: '[TYPHOID SUPPORT MEDICINE DATABASE TO BE ADDED]'
             },
 
-            dengue_ns1: {
+            dengig_ns1: {
               condition: 'Dantak Jwara (Mosquito fever)',
               dosha: 'Pitta-Rakta vitiation',
               view: 'Viral fever affecting blood and causing bleeding tendency',
@@ -1476,7 +1589,6 @@
           const normalizedData = {};
           for (const key in bloodData) {
               if (Object.prototype.hasOwnProperty.call(bloodData, key)) {
-                  // A robust normalization function
                   const normalizedKey = key.toLowerCase().replace(/[\s\(\)\/]+/g, '_').replace(/^_|_$/g, '');
                   normalizedData[normalizedKey] = bloodData[key];
               }
@@ -1486,9 +1598,9 @@
           let patientAge = 'N/A';
           let patientGender = 'N/A';
           if (normalizedData.age_sex) {
-              const parts = normalizedData.age_sex.split(' ');
+              const parts = normalizedData.age_sex.toString().split(' ');
               if (parts.length >= 2) {
-                  patientAge = parts[0] + ' Years';
+                  patientAge = parts[0];
                   patientGender = parts[2];
               }
           }
@@ -1503,15 +1615,7 @@
             // DIABETES & METABOLIC
             hba1c: (value) => analyzeHbA1c(value),
             fasting_glucose: (value) => analyzeFastingGlucose(value),
-            estimated_average_glucose: (value) => {
-              if (value < 120) {
-                return { status: 'Normal', color: 'green', risk: 'Healthy glucose metabolism' };
-              } else if (value >= 120 && value <= 140) {
-                return { status: 'Prediabetic', color: 'orange', risk: 'Impaired glucose metabolism', alert: 'Dietary changes recommended' };
-              } else {
-                return { status: 'Diabetic', color: 'red', risk: 'Diabetes indicated', alert: 'Medical treatment required' };
-              }
-            },
+            estimated_average_glucose: (value) => analyzeEstimatedAverageGlucose(value),
             
             // LIPID PROFILE
             total_cholesterol: (value) => analyzeCholesterol(value),
@@ -1520,50 +1624,25 @@
             triglycerides: (value) => analyzeTriglycerides(value),
             
             // HEMATOLOGY
-            hemoglobin: (value) => analyzeHemoglobin(value, results.patient_info.gender),
-            wbc_count: (value) => analyzeWBC(value),
-            platelet_count: (value) => analyzePlateletCount(value),
+            haemoglobin: (value) => analyzeHemoglobin(value, results.patient_info.gender),
+            wbc_tlc: (value) => analyzeWBC(value),
+            platelets: (value) => analyzePlateletCount(value),
             
             // LIVER FUNCTION
-            alt_sgpt: (value) => analyzeALT(value, results.patient_info.gender),
-            ast_sgot: (value) => analyzeAST(value, results.patient_info.gender),
-            bilirubin: (value) => analyzeBilirubin(value),
+            sgpt_alt: (value) => analyzeALT(value, results.patient_info.gender),
+            sgot_ast: (value) => analyzeAST(value, results.patient_info.gender),
+            bilirubin_total: (value) => analyzeBilirubin(value),
             
             // INFECTIOUS DISEASES
-            typhidot_igg: (result) => {
-                if (result.toLowerCase().includes('positive')) {
-                    return { status: 'Positive', color: 'red', risk: 'Previous Typhoid infection or re-infection', alert: 'Consult doctor for current fever diagnosis' };
-                }
-                return { status: 'Negative', color: 'green', risk: 'No previous Typhoid infection' };
-            },
-            typhidot_igm: (result) => {
-                if (result.toLowerCase().includes('positive')) {
-                    return { status: 'Positive', color: 'red', risk: 'Acute Typhoid Fever', alert: 'Immediate medical consultation required' };
-                }
-                return { status: 'Negative', color: 'green', risk: 'No acute Typhoid infection' };
-            },
-            hepatitis_b: (result) => analyzeHepatitisB(result),
-            hepatitis_c: (result) => analyzeHepatitisC(result),
+            typhidot_igg: (result) => analyzeTyphidotIgG(result),
+            typhidot_igm: (result) => analyzeTyphidotIgM(result),
+            hbsag: (result) => analyzeHepatitisB(result),
+            anti_hcv: (result) => analyzeHepatitisC(result),
             
             // SPECIAL CASES
-            mch: (value) => {
-                if (value > 32) {
-                    return { status: 'High', color: 'red', risk: 'Increased risk of macrocytic anemia', alert: 'Further investigation may be required' };
-                }
-                if (value < 27) {
-                    return { status: 'Low', color: 'red', risk: 'Increased risk of microcytic anemia', alert: 'Further investigation may be required' };
-                }
-                return { status: 'Normal', color: 'green', risk: 'Healthy MCH' };
-            },
-            mchc: (value) => {
-                 if (value > 35) {
-                    return { status: 'High', color: 'red', risk: 'Increased risk of spherocytosis', alert: 'Further investigation may be required' };
-                }
-                if (value < 30) {
-                    return { status: 'Low', color: 'red', risk: 'Increased risk of hypochromic anemia', alert: 'Further investigation may be required' };
-                }
-                return { status: 'Normal', color: 'green', risk: 'Healthy MCHC' };
-            },
+            mch: (value) => analyzeMCH(value),
+            mchc: (value) => analyzeMCHC(value),
+            mcv: (value) => analyzeMCV(value),
           };
           
           for (const [parameter, value] of Object.entries(normalizedData)) {
@@ -1609,73 +1688,36 @@
             ldl_cholesterol: 'mg/dL',
             hdl_cholesterol: 'mg/dL',
             triglycerides: 'mg/dL',
-            hemoglobin: 'g/dL',
-            wbc_count: 'x10³/µL',
-            platelet_count: 'x10³/µL',
-            alt_sgpt: 'U/L',
-            ast_sgot: 'U/L',
-            bilirubin: 'mg/dL',
-            creatinine: 'mg/dL',
-            bun: 'mg/dL',
-            uric_acid: 'mg/dL',
-            tsh: 'µIU/mL',
-            t3: 'ng/dL',
-            t4: 'µg/dL',
-            esr: 'mm/hr',
-            crp: 'mg/L',
-            vitamin_d: 'ng/mL',
-            vitamin_b12: 'pg/mL',
-            folate: 'ng/mL',
-            iron: 'µg/dL',
-            ferritin: 'ng/mL',
-            troponin: 'ng/mL',
-            ck_mb: 'ng/mL',
-            psa: 'ng/mL',
-            cea: 'ng/mL',
-            afp: 'ng/mL',
-            malaria_rapid_test: 'Result',
-            typhoid_test: 'Result',
-            widal_test: 'Titer',
-            dengue_ns1: 'Result',
-            dengue_igm: 'Result',
-            chikungunya_igm: 'Result',
-            hepatitis_b: 'Result',
-            hepatitis_c: 'Result',
-            hiv_test: 'Result',
-            tuberculosis: 'Result',
-            procalcitonin: 'ng/mL',
-            ana_titer: 'Titer',
-            rheumatoid_factor: 'IU/mL',
-            testosterone: 'ng/dL',
-            cortisol: 'µg/dL',
-            pt_inr: 'INR',
-            ptt: 'seconds',
-            d_dimer: 'µg/mL',
+            haemoglobin: 'g/dL',
+            wbc_tlc: 'x10³/µL',
+            total_rbc: 'x106/µL',
+            hct_pvc: '%',
+            mcv: 'fL',
+            mch: 'pg',
+            mchc: 'g/dL',
+            platelets: 'x10³/µL',
+            bilirubin_total: 'mg/dL',
+            sgpt_alt: 'U/L',
+            sgot_ast: 'U/L',
             typhidot_igg: 'Result',
             typhidot_igm: 'Result',
-            mch: 'pg',
-            mchc: 'g/dL'
+            hbsag: 'Result',
+            anti_hcv: 'Result',
+            neutrophils: '%',
+            lymphocytes: '%',
+            monocytes: '%',
+            eosinophils: '%'
           };
           return units[parameter] || '';
         }
 
         function categorizeDisease(parameter, categories) {
           const categoryMap = {
-            diabetes: ['hba1c', 'fasting_glucose'],
+            diabetes: ['hba1c', 'fasting_glucose', 'estimated_average_glucose'],
             cardiovascular: ['total_cholesterol', 'ldl_cholesterol', 'hdl_cholesterol', 'triglycerides'],
-            liver: ['alt_sgpt', 'ast_sgot', 'bilirubin', 'hepatitis_b', 'hepatitis_c'],
-            kidney: ['creatinine', 'bun', 'uric_acid'],
-            blood_disorders: ['hemoglobin', 'wbc_count', 'platelet_count', 'pt_inr', 'ptt', 'd_dimer', 'mch', 'mchc'],
-            thyroid: ['tsh', 't3', 't4'],
-            inflammatory: ['esr', 'crp', 'procalcitonin'],
-            nutritional: ['vitamin_d', 'vitamin_b12', 'folate', 'iron', 'ferritin'],
-            cardiac: ['troponin', 'ck_mb'],
-            cancer_markers: ['psa', 'cea', 'afp'],
-            infectious_diseases: ['malaria_rapid_test', 'typhidot_igg', 'typhidot_igm', 'typhoid_test', 'widal_test', 'dengue_ns1', 'dengue_igm', 'chikungunya_igm', 'tuberculosis', 'procalcitonin'],
-            viral_infections: ['hepatitis_b', 'hepatitis_c', 'hiv_test'],
-            autoimmune: ['ana_titer', 'rheumatoid_factor'],
-            hormonal: ['testosterone', 'cortisol'],
-            coagulation: ['pt_inr', 'ptt', 'd_dimer']
+            liver: ['sgpt_alt', 'sgot_ast', 'bilirubin_total', 'hbsag', 'anti_hcv'],
+            blood_disorders: ['haemoglobin', 'wbc_tlc', 'platelets', 'mcv', 'mch', 'mchc'],
+            infectious_diseases: ['typhidot_igg', 'typhidot_igm', 'hbsag', 'anti_hcv']
           };
           
           for (const [category, parameters] of Object.entries(categoryMap)) {
@@ -1686,24 +1728,26 @@
         }
         
         async function updateAnalysisPage(data) {
-            medicalResults.innerHTML = '';
-            ayurvedicResults.innerHTML = '';
-            
             console.log('Data received in updateAnalysisPage:', data);
-
+            
+            medicalResults.innerHTML = '';
+            document.getElementById('protocolCardsContainer').innerHTML = '';
+            document.getElementById('ayurvedicFooter').innerHTML = '';
+            
             const mergedData = (Array.isArray(data) && data.length > 0 && typeof data[0] === 'object') 
                 ? data.reduce((acc, curr) => ({ ...acc, ...curr }), {}) 
                 : (typeof data === 'object' && data !== null ? data : {});
 
             if (Object.keys(mergedData).length === 0) {
                 medicalResults.innerHTML = '<div class="placeholder-text">No analytical data found in the report.</div>';
-                ayurvedicResults.innerHTML = '<div class="placeholder-text">Ayurvedic recommendations will appear here after analysis.</div>';
+                document.getElementById('protocolCardsContainer').innerHTML = '<div class="placeholder-text">Ayurvedic recommendations will appear here after analysis.</div>';
+                document.getElementById('ayurvedicFooter').innerHTML = '';
                 return;
             }
 
             const analysisResults = analyzeCompleteBloodReport(mergedData);
             const patientInfo = analysisResults.patient_info;
-
+            
             // Display patient info from the analysis results
             if (patientInfo && patientInfo.name !== 'N/A') {
                 patientNameSpan.textContent = patientInfo.name;
@@ -1714,11 +1758,10 @@
                 patientInfoDisplay.style.display = 'none';
             }
 
-            // Initialize arrays to separate results
             const abnormalResults = [];
             const normalResults = [];
 
-            // Render Medical Analysis
+            // --- Medical Analysis Rendering ---
             if (Object.keys(analysisResults.medical_analysis).length > 0) {
                 for (const param in analysisResults.medical_analysis) {
                     const result = analysisResults.medical_analysis[param];
@@ -1745,7 +1788,6 @@
                 }
 
                 if (abnormalResults.length > 0) {
-                    // Display a general alert for abnormal results
                     medicalResults.innerHTML += '<div class="analysis-section-title" style="color: #f44336;"><i class="fas fa-exclamation-triangle"></i> Abnormal Results Found</div>';
                     medicalResults.innerHTML += abnormalResults.join('');
                 }
@@ -1754,13 +1796,6 @@
                     if (abnormalResults.length === 0) {
                          medicalResults.innerHTML = '<div class="placeholder-text">All key parameters are within the normal range. Great job!</div>';
                     } 
-                    // OPTIONAL: To show all results, abnormal and normal, uncomment the lines below:
-                    /*
-                    else {
-                        medicalResults.innerHTML += '<div class="analysis-section-title" style="font-size: 1.2rem; margin-top: 20px;"><i class="fas fa-check-circle"></i> Normal Results (For Reference)</div>';
-                        medicalResults.innerHTML += normalResults.join('');
-                    }
-                    */
                 }
 
                 if (abnormalResults.length === 0 && normalResults.length === 0) {
@@ -1770,32 +1805,70 @@
                 medicalResults.innerHTML = '<div class="placeholder-text">No analytical data found in the report.</div>';
             }
 
-            // Render Ayurvedic Recommendations
-            if (Object.keys(analysisResults.ayurvedic_recommendations).length > 0) {
-                for (const param in analysisResults.ayurvedic_recommendations) {
-                    const recs = analysisResults.ayurvedic_recommendations[param];
-                    const paramName = param.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-                    const ayurvedicCard = `
-                        <div class="analysis-section-title">
-                            <i class="fas fa-herbal"></i> RECOMMENDATIONS FOR ${paramName.toUpperCase()}
-                        </div>
-                        <p class="analysis-detail"><b>Ayurvedic View:</b> ${recs.view}</p>
-                        <h4 class="analysis-section-title" style="font-size: 1.2rem; margin-top: 15px;"><i class="fas fa-leaf"></i> DIETARY GUIDANCE</h4>
-                        <ul class="ayurvedic-list">
-                            ${recs.avoid.map(item => `<li><i class="fas fa-times-circle" style="color: #F44336;"></i> <span style="font-weight: bold;">Avoid:</span> ${item}</li>`).join('')}
-                            ${recs.include.map(item => `<li><i class="fas fa-check-circle" style="color: #4CAF50;"></i> <span style="font-weight: bold;">Include:</span> ${item}</li>`).join('')}
-                        </ul>
-                        <h4 class="analysis-section-title" style="font-size: 1.2rem; margin-top: 15px;"><i class="fas fa-universal-access"></i> LIFESTYLE MODIFICATIONS</h4>
-                        <ul class="ayurvedic-list">
-                            ${recs.yoga.map(item => `<li><i class="fas fa-om"></i> <span style="font-weight: bold;">Yoga:</span> ${item}</li>`).join('')}
-                            ${recs.pranayama.map(item => `<li><i class="fas fa-wind"></i> <span style="font-weight: bold;">Pranayama:</span> ${item}</li>`).join('')}
-                            ${recs.exercise.map(item => `<li><i class="fas fa-walking"></i> <span style="font-weight: bold;">Exercise:</span> ${item}</li>`).join('')}
-                        </ul>
-                    `;
-                    ayurvedicResults.innerHTML += ayurvedicCard;
+
+            // --- Ayurvedic Protocol Display (New Logic) ---
+            const protocolKey = mapAnalysisToProtocol(analysisResults);
+            const protocolCardsContainer = document.getElementById('protocolCardsContainer');
+            const ayurvedicFooter = document.getElementById('ayurvedicFooter');
+
+            protocolCardsContainer.innerHTML = ''; // Clear previous content
+            ayurvedicFooter.innerHTML = '';
+
+            if (protocolKey && typeof SUPPLEMENT_KNOWLEDGE_BASE !== 'undefined' && SUPPLEMENT_KNOWLEDGE_BASE.PROTOCOLS[protocolKey]) {
+                const protocolData = SUPPLEMENT_KNOWLEDGE_BASE.PROTOCOLS[protocolKey];
+                
+                // --- 2.1 Rationale (Header Section) ---
+                let rationaleHTML = `<div class="analysis-section-title"><i class="fas fa-herbal"></i> RECOMMENDATIONS FOR ${protocolKey.replace(/_/g, ' ')}</div>`;
+                rationaleHTML += `<p class="analysis-detail"><b>Ayurvedic Rationale:</b> ${protocolData.rationale}</p>`;
+
+                // --- 2.2 Protocol Cards (Main Section) ---
+                let productCardsHTML = '';
+                
+                // Check for EXCLUSIONS before generating cards
+                const is9E5Excluded = protocolData.foundation === '9E5_PREMIUM_HEALTH_DRINK' && protocolData.warnings.some(w => w.includes('9E5'));
+                const isThyroidStimulantExcluded = protocolData.primary === 'THYHEALTH_LIQUID' && protocolData.warnings.some(w => w.includes('THYHEALTH_LIQUID'));
+                
+                if (is9E5Excluded) {
+                    const exclusionWarning = protocolData.warnings.find(w => w.includes('9E5'));
+                    productCardsHTML += generateCriticalWarningCard('9E5_PREMIUM_HEALTH_DRINK', 'AVOIDANCE', exclusionWarning || 'CRITICAL AVOIDANCE: Fruit sugars must be avoided.');
+                } else if (protocolData.foundation && protocolData.foundation !== 'N/A') {
+                    productCardsHTML += generateProductCard(protocolData.foundation, 'Foundation');
                 }
+                
+                if (isThyroidStimulantExcluded) {
+                     const thyhealthProductKey = 'THYHEALTH_LIQUID';
+                     const exclusionWarning = protocolData.warnings.find(w => w.includes('THYHEALTH_LIQUID'));
+                     productCardsHTML += generateCriticalWarningCard(thyhealthProductKey, 'EXCLUSION', exclusionWarning || 'CRITICAL AVOIDANCE: Contains thyroid-stimulating ingredients.');
+                } else if (protocolData.primary && protocolData.primary !== 'N/A') {
+                    productCardsHTML += generateProductCard(protocolData.primary, 'Primary Treatment');
+                }
+
+                // Handle Supporting Products
+                if (protocolData.supporting && protocolData.supporting.length > 0) {
+                    protocolData.supporting.forEach(productKey => {
+                        productCardsHTML += generateProductCard(productKey, 'Supporting');
+                    });
+                }
+                
+                // --- 2.3 Assemble and Insert ---
+                protocolCardsContainer.innerHTML = rationaleHTML + productCardsHTML;
+
+                // --- 2.4 Final Disclaimer and Timeline (Footer) ---
+                const timelineKey = protocolKey.split('_')[0];
+                const timeline = SUPPLEMENT_KNOWLEDGE_BASE.MONITORING_TIMELINES[timelineKey];
+                if (timeline) {
+                    ayurvedicFooter.innerHTML = `
+                        <div style="background: #E0F7FA; padding: 15px; border-radius: 10px; margin-bottom: 15px; border: 1px solid #B2EBF2;">
+                            <h4 style="color: #00BCD4; margin-bottom: 8px;"><i class="fas fa-chart-line"></i> Monitoring & Timeline</h4>
+                            <p><strong>Required Monitoring:</strong> ${timeline.Required}</p>
+                            <p><strong>Expected Results (Month 3):</strong> ${timeline['Month 3']}</p>
+                        </div>
+                        <div class="disclaimer">${SUPPLEMENT_KNOWLEDGE_BASE.DISCLAIMERS.join(' ')}</div>
+                    `;
+                }
+
             } else {
-                ayurvedicResults.innerHTML = '<div class="placeholder-text">Based on your report, all key values are within ranges that require no immediate Ayurvedic lifestyle corrections.</div>';
+                document.getElementById('protocolCardsContainer').innerHTML = '<div class="placeholder-text">No specific therapeutic protocol found for your current results.</div>';
             }
         }
     </script>
