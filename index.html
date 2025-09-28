@@ -1236,6 +1236,107 @@
           
           return recommendations[parameter] || null;
         }
+        
+        // --- B. Define the Card Generation Helper Functions ---
+        // Assuming SUPPLEMENT_KNOWLEDGE_BASE object is available via script import
+        function generateProductCard(productKey, category) {
+            if (typeof SUPPLEMENT_KNOWLEDGE_BASE === 'undefined' || !SUPPLEMENT_KNOWLEDGE_BASE.PRODUCTS[productKey]) return '';
+            const product = SUPPLEMENT_KNOWLEDGE_BASE.PRODUCTS[productKey];
+
+            const colorMap = {
+                'Foundation': '#4DB6AC',
+                'Primary Treatment': '#66BB6A',
+                'Supporting': '#FF9800'
+            };
+            
+            const categoryColor = colorMap[category] || '#666';
+            const hasWarning = product.warnings && product.warnings.length > 0;
+            
+            return `
+                <div class="product-card" style="border-left-color: ${categoryColor};">
+                    <div class="card-header-line">
+                        <span class="category-badge" style="background-color: ${categoryColor};">${category.toUpperCase()}</span>
+                        ${hasWarning ? '<i class="fas fa-exclamation-triangle" style="color: #D32F2F;"></i>' : ''}
+                    </div>
+                    
+                    <h2 class="product-title">${product.name}</h2>
+                    
+                    ${product.warnings.map(warning => `<p class="critical-warning-banner">${warning}</p>`).join('')}
+
+                    <div class="dosage-line">
+                        <i class="fas fa-pills"></i>
+                        <p><strong>Dosage:</strong> ${product.dosage}</p>
+                    </div>
+                    
+                    <p class="rationale-text">
+                        <strong>Rationale:</strong> ${product.rationale}
+                    </p>
+                </div>
+            `;
+        }
+
+        function generateCriticalWarningCard(productKey, type, specificWarning) {
+            if (typeof SUPPLEMENT_KNOWLEDGE_BASE === 'undefined' || !SUPPLEMENT_KNOWLEDGE_BASE.PRODUCTS[productKey]) return '';
+            const product = SUPPLEMENT_KNOWLEDGE_BASE.PRODUCTS[productKey];
+            
+            return `
+                <div class="product-card" style="border-left-color: #D32F2F;">
+                    <div class="card-header-line">
+                        <span class="category-badge" style="background-color: #D32F2F;">CRITICAL EXCLUSION</span>
+                    </div>
+                    
+                    <h2 class="product-title">${product.name}</h2>
+                    
+                    <p class="critical-warning-banner">
+                        <i class="fas fa-exclamation-triangle"></i> ${specificWarning}
+                    </p>
+                    
+                    <p class="rationale-text">
+                        This product is **explicitly filtered out** of your protocol due to the severity of your test results.
+                    </p>
+                </div>
+            `;
+        }
+
+        function mapAnalysisToProtocol(analysisResults) {
+            if (typeof SUPPLEMENT_KNOWLEDGE_BASE === 'undefined') {
+                return null;
+            }
+
+            const data = analysisResults.medical_analysis;
+
+            // --- Simplified checks based on common medical tests ---
+            
+            // 1. Check for Autoimmune Disease (Simulated check for ANA/RF)
+            const isAutoimmune = (data.ana && data.ana.status === 'High Positive') || 
+                                 (data.rheumatoid_factor && data.rheumatoid_factor.status === 'High');
+            if (isAutoimmune) {
+                return 'AUTOIMMUNE_DISEASE';
+            }
+
+            // 2. Check for Hyperthyroidism (TSH Low)
+            if (data.tsh && data.tsh.value < 0.4) {
+                return 'HYPERTHYROIDISM';
+            }
+            
+            // 3. Check for Severe Diabetes (HbA1c > 7.5%)
+            if (data.hba1c && data.hba1c.value > 7.5) {
+                return 'DIABETES_SEVERE';
+            }
+
+            // 4. Check for Moderate Diabetes (HbA1c > 6.4%)
+            if (data.hba1c && data.hba1c.value > 6.4) {
+                return 'DIABETES_MODERATE';
+            }
+            
+            // 5. Check for Anemia (using Hemoglobin low status)
+            if (data.haemoglobin && data.haemoglobin.status.toLowerCase().includes('low')) {
+                return 'ANEMIA'; 
+            }
+
+            // Default to null if no specific condition met
+            return null; 
+        }
 
         // ========== CORE ANALYSIS FUNCTION (Defined before updateAnalysisPage) ==========
         function analyzeCompleteBloodReport(bloodData) {
