@@ -822,8 +822,6 @@
             return result;
         }
 
-        // --- FUNCTION DEFINITIONS (Moved to the top to resolve ReferenceError) ---
-
         // ========== HELPER FUNCTIONS (Units and Categories) ==========
         function getParameterUnit(parameter) {
           const units = {
@@ -1329,8 +1327,8 @@
                 return 'DIABETES_MODERATE';
             }
             
-            // 5. Check for Anemia (using Hemoglobin low status)
-            if (data.haemoglobin && data.haemoglobin.status.toLowerCase().includes('low')) {
+            // 5. Check for Anemia (using Hemoglobin low status) - RESTORED LOGIC
+            if (data.haemoglobin && data.haemoglobin.status && data.haemoglobin.status.toLowerCase().includes('low')) {
                 return 'ANEMIA'; 
             }
 
