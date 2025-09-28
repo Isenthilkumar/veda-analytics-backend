@@ -207,7 +207,7 @@
         }
         
         .btn-coming-soon {
-            background: linear-gradient(135deg, #FF9800, #FF5722);
+            background: linear_gradient(135deg, #FF9800, #FF5722);
             color: white;
             cursor: not-allowed;
             opacity: 0.7;
@@ -579,8 +579,8 @@
     <div id="homePage" class="page active">
         <div class="header">
             <div class="logo">
-                <span class="lotus-icon">üßò</span>
-                <span class="medical-symbol">‚öïÔ∏è</span>
+                <span class="lotus-icon">??</span>
+                <span class="medical-symbol">??</span>
             </div>
             <h1 class="app-name">VEDA ANALYTICS</h1>
             <p class="tagline">Wellness Through Wisdom</p>
@@ -688,7 +688,7 @@
     <script>
         // --- START OF JAVASCRIPT LOGIC ---
         
-        // ‚úÖ CORRECTED API URL: Points to your live Vercel backend's /analyze endpoint.
+        // ? CORRECTED API URL: Points to your live Vercel backend's /analyze endpoint.
         const API_URL = 'https://veda-analytics-backend.vercel.app/analyze';
 
         // ========== CORE APPLICATION STATE AND EVENT LISTENERS ==========
@@ -779,7 +779,7 @@
                 uploadBtn.innerHTML = '<i class="fas fa-check"></i> Report Ready';
                 uploadBtn.classList.remove('btn-loading');
                 uploadStatus.className = 'upload-status upload-success';
-                uploadStatus.textContent = `‚úÖ ${file.name} analyzed successfully.`;
+                uploadStatus.textContent = `? ${file.name} analyzed successfully.`;
                 analyzeBtn.disabled = false;
                 analyzeBtn.className = 'btn btn-primary';
 
@@ -788,7 +788,7 @@
                 uploadBtn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Upload Report';
                 uploadBtn.classList.remove('btn-loading');
                 uploadStatus.className = 'upload-status upload-error';
-                uploadStatus.textContent = `‚ùå Analysis failed. Error: ${error.message.substring(0, 50)}...`;
+                uploadStatus.textContent = `? Analysis failed. Error: ${error.message.substring(0, 50)}...`;
                 analyzeBtn.disabled = true;
                 analyzeBtn.className = 'btn btn-disabled';
                 showMessage('Error', `Analysis failed. Please try a different report or check the console for details.`);
@@ -827,15 +827,15 @@
           const units = {
             hba1c: '%', fasting_glucose: 'mg/dL', estimated_average_glucose: 'mg/dL', total_cholesterol: 'mg/dL',
             ldl_cholesterol: 'mg/dL', hdl_cholesterol: 'mg/dL', triglycerides: 'mg/dL', haemoglobin: 'g/dL',
-            wbc_tlc: 'x10¬≥/¬µL', total_rbc: 'x10‚Å∂/¬µL', hct_pvc: '%', mcv: 'fL', mch: 'pg', mchc: 'g/dL',
-            platelets: 'x10¬≥/¬µL', bilirubin_total: 'mg/dL', sgpt_alt: 'U/L', sgot_ast: 'U/L', typhidot_igg: 'Result',
+            wbc_tlc: 'x10≥/µL', total_rbc: 'x106/µL', hct_pvc: '%', mcv: 'fL', mch: 'pg', mchc: 'g/dL',
+            platelets: 'x10≥/µL', bilirubin_total: 'mg/dL', sgpt_alt: 'U/L', sgot_ast: 'U/L', typhidot_igg: 'Result',
             typhidot_igm: 'Result', hbsag: 'Result', anti_hcv: 'Result', neutrophils: '%', lymphocytes: '%',
-            monocytes: '%', eosinophils: '%', creatinine: 'mg/dL', bun: 'mg/dL', uric_acid: 'mg/dL', tsh: '¬µIU/mL',
-            t3: 'ng/dL', t4: '¬µg/dL', esr: 'mm/hr', crp: 'mg/L', vitamin_d: 'ng/mL', vitamin_b12: 'pg/mL',
-            folate: 'ng/mL', iron: '¬µg/dL', ferritin: 'ng/mL', troponin: 'ng/mL', ck_mb: 'ng/mL', psa: 'ng/mL', 
-            cea: 'ng/mL', afp: 'ng/mL', pt_inr: 'INR', ptt: 'seconds', d_dimer: '¬µg/mL', malaria_rapid_test: 'Result',
+            monocytes: '%', eosinophils: '%', creatinine: 'mg/dL', bun: 'mg/dL', uric_acid: 'mg/dL', tsh: 'µIU/mL',
+            t3: 'ng/dL', t4: 'µg/dL', esr: 'mm/hr', crp: 'mg/L', vitamin_d: 'ng/mL', vitamin_b12: 'pg/mL',
+            folate: 'ng/mL', iron: 'µg/dL', ferritin: 'ng/mL', troponin: 'ng/mL', ck_mb: 'ng/mL', psa: 'ng/mL', 
+            cea: 'ng/mL', afp: 'ng/mL', pt_inr: 'INR', ptt: 'seconds', d_dimer: 'µg/mL', malaria_rapid_test: 'Result',
             typhoid_test: 'Result', widal_test: 'Titer', dengue_ns1: 'Result', dengue_igm: 'Result', chikungunya_igm: 'Result',
-            tuberculosis: 'Result', procalcitonin: 'ng/mL', ana_titer: 'Titer', rheumatoid_factor: 'IU/mL', testosterone: 'ng/dL', cortisol: '¬µg/dL'
+            tuberculosis: 'Result', procalcitonin: 'ng/mL', ana_titer: 'Titer', rheumatoid_factor: 'IU/mL', testosterone: 'ng/dL', cortisol: 'µg/dL'
           };
           return units[parameter] || '';
         }
@@ -1331,6 +1331,13 @@
             if (data.haemoglobin && data.haemoglobin.status && data.haemoglobin.status.toLowerCase().includes('low')) {
                 return 'ANEMIA'; 
             }
+            
+            // 6. Check for Severe Liver Disease (ALT/AST > 80 U/L) - RESTORED LOGIC
+            const isLiverSevere = (data.sgpt_alt && data.sgpt_alt.value > 80) || (data.sgot_ast && data.sgot_ast.value > 80);
+            if (isLiverSevere) {
+                return 'LIVER_SEVERE';
+            }
+
 
             // Default to null if no specific condition met
             return null; 
@@ -1535,7 +1542,7 @@
                             <p class="analysis-detail">Value: ${result.value} ${result.unit || ''}</p>
                             <p class="analysis-detail">Your Status: Your value is in the ${result.status.toLowerCase()} range.</p>
                             <p class="analysis-detail">Risk Level: ${result.risk || 'No specific risk mentioned.'}</p>
-                            ${result.alert ? `<p class="analysis-detail" style="color:#f44336; font-weight: bold;">‚ö†Ô∏è ALERT: ${result.alert}</p>` : ''}
+                            ${result.alert ? `<p class="analysis-detail" style="color:#f44336; font-weight: bold;">?? ALERT: ${result.alert}</p>` : ''}
                         </div>
                     `;
 
